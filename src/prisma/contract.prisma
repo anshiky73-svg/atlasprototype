@@ -1,0 +1,319 @@
+// use prisma-8
+enum SourceType {
+  GOVERNMENT
+  UNIVERSITY
+  UGC
+  AICTE
+  MINISTRY
+  CSR
+  FOUNDATION
+  TRUST
+  OTHER_OFFICIAL
+}
+
+enum ScholarshipStatus {
+  ACTIVE
+  EXPIRING_SOON
+  EXPIRED
+  REVIEW_REQUIRED
+  NO_LONGER_VERIFIABLE
+}
+
+enum VerificationStatus {
+  VERIFIED
+  REVIEW_REQUIRED
+  FAILED
+}
+
+enum EvidenceType {
+  NAME
+  PROVIDER
+  AMOUNT
+  ELIGIBILITY
+  ACADEMIC_REQUIREMENTS
+  EDUCATION_LEVEL
+  INCOME
+  AGE
+  GENDER
+  CATEGORY
+  DOMICILE
+  INSTITUTION
+  OPENING_DATE
+  CLOSING_DATE
+  DOCUMENTS
+  SELECTION_PROCESS
+  RENEWAL
+  APPLICATION_URL
+  STATUS
+  GENERAL
+}
+
+enum CrawlStatus {
+  RUNNING
+  COMPLETED
+  FAILED
+}
+
+enum DiscoveryStatus {
+  DISCOVERED
+  QUEUED
+  CRAWLED
+  PROCESSED
+  REJECTED
+  FAILED
+}
+
+model Scholarship {
+  id                      Int                        @id @default(autoincrement())
+  name                    String
+  provider                String?
+  sourceType              SourceType
+  officialSourceUrl       String
+  applicationUrl          String?
+
+  amount                  String?
+  eligibility             String?
+  academicRequirements    String?
+  educationLevel          String?
+  incomeCriteria          String?
+  ageCriteria             String?
+  genderCriteria          String?
+  categoryCriteria        String?
+  domicileCriteria        String?
+  institutionRequirements String?
+  openingDate             TimestamptzString?
+  closingDate             TimestamptzString?
+  documentsRequired       String?
+  selectionProcess        String?
+  renewalRequirements     String?
+
+  status                  ScholarshipStatus          @default(REVIEW_REQUIRED)
+  verificationStatus      VerificationStatus         @default(REVIEW_REQUIRED)
+  confidenceScore         Int                        @default(0)
+  confidenceBreakdown     String?
+
+  currentContentHash      String?
+  lastEvidenceHash        String?
+
+  lastVerifiedAt          TimestamptzString?
+  lastCrawledAt           TimestamptzString?
+
+  createdAt               TimestamptzString          @default(now())
+  updatedAt               temporal.updatedAtString()
+
+  source                  Source?                    @relation(fields: [sourceId], references: [id])
+  sourceId                Int?
+
+  evidence                Evidence[]
+  versions                ScholarshipVersion[]
+  changes                 ChangeEvent[]
+  @@index([status])
+  @@index([verificationStatus])
+  @@index([confidenceScore])
+  @@index([closingDate])
+  @@index([sourceId])
+}
+
+model Source {
+  id              Int                        @id @default(autoincrement())
+  name            String
+  url             String                     @unique
+  domain          String
+  sourceType      SourceType
+  isOfficial      Boolean                    @default(false)
+  isPrimarySource Boolean                    @default(false)
+
+  lastCrawledAt   TimestamptzString?
+  lastVerifiedAt  TimestamptzString?
+  active          Boolean                    @default(true)
+
+  createdAt       TimestamptzString          @default(now())
+  updatedAt       temporal.updatedAtString()
+
+  scholarships    Scholarship[]
+  evidence        Evidence[]
+  discoveredUrls  DiscoveredUrl[]
+
+  @@index([sourceType])
+  @@index([isOfficial])
+  @@index([active])
+}
+
+model Evidence {
+  id               Int               @id @default(autoincrement())
+  scholarshipId    Int
+  sourceId         Int?
+  crawlRunId       Int?
+
+  fieldName        EvidenceType
+  sourceUrl        String
+  evidenceText     String
+  extractedValue   String?
+  contentHash      String?
+  retrievedAt      TimestamptzString @default(now())
+
+  supportsClaim    Boolean           @default(true)
+  isOfficialSource Boolean           @default(false)
+
+  createdAt        TimestamptzString @default(now())
+
+  scholarship      Scholarship       @relation(fields: [scholarshipId], references: [id])
+  source           Source?           @relation(fields: [sourceId], references: [id])
+  crawlRun         CrawlRun?         @relation(fields: [crawlRunId], references: [id])
+
+  @@index([scholarshipId])
+  @@index([sourceId])
+  @@index([crawlRunId])
+  @@index([fieldName])
+  @@index([contentHash])
+}
+
+model ScholarshipVersion {
+  id                      Int                @id @default(autoincrement())
+  scholarshipId           Int
+  crawlRunId              Int?
+
+  name                    String
+  provider                String?
+  amount                  String?
+  eligibility             String?
+  academicRequirements    String?
+  educationLevel          String?
+  incomeCriteria          String?
+  ageCriteria             String?
+  genderCriteria          String?
+  categoryCriteria        String?
+  domicileCriteria        String?
+  institutionRequirements String?
+  openingDate             TimestamptzString?
+  closingDate             TimestamptzString?
+  documentsRequired       String?
+  selectionProcess        String?
+  renewalRequirements     String?
+  applicationUrl          String?
+  officialSourceUrl       String?
+
+  confidenceScore         Int
+  verificationStatus      VerificationStatus
+
+  contentHash             String
+  capturedAt              TimestamptzString  @default(now())
+  sourceUrl               String
+
+  scholarship             Scholarship        @relation(fields: [scholarshipId], references: [id])
+  crawlRun                CrawlRun?          @relation(fields: [crawlRunId], references: [id])
+
+  @@index([scholarshipId])
+  @@index([crawlRunId])
+  @@index([capturedAt])
+  @@index([contentHash])
+}
+
+model ChangeEvent {
+  id            Int               @id @default(autoincrement())
+  scholarshipId Int
+  crawlRunId    Int?
+
+  fieldName     String
+  oldValue      String?
+  newValue      String?
+
+  sourceUrl     String
+  evidenceText  String?
+  detectedAt    TimestamptzString @default(now())
+
+  scholarship   Scholarship       @relation(fields: [scholarshipId], references: [id])
+  crawlRun      CrawlRun?         @relation(fields: [crawlRunId], references: [id])
+
+  @@index([scholarshipId])
+  @@index([crawlRunId])
+  @@index([detectedAt])
+  @@index([fieldName])
+}
+
+model CrawlRun {
+  id                      Int                  @id @default(autoincrement())
+
+  status                  CrawlStatus          @default(RUNNING)
+
+  startedAt               TimestamptzString    @default(now())
+  completedAt             TimestamptzString?
+
+  discoveredCount         Int                  @default(0)
+  crawledCount            Int                  @default(0)
+  extractedCount          Int                  @default(0)
+  verifiedCount           Int                  @default(0)
+  reviewRequiredCount     Int                  @default(0)
+  newScholarshipCount     Int                  @default(0)
+  updatedScholarshipCount Int                  @default(0)
+  expiredCount            Int                  @default(0)
+  failedCount             Int                  @default(0)
+
+  errorMessage            String?
+
+  createdAt               TimestamptzString    @default(now())
+
+  evidence                Evidence[]
+  versions                ScholarshipVersion[]
+  changes                 ChangeEvent[]
+  discoveredUrls          DiscoveredUrl[]
+  snapshots               ContentSnapshot[]
+
+  @@index([status])
+  @@index([startedAt])
+}
+
+model DiscoveredUrl {
+  id                Int                @id @default(autoincrement())
+
+  url               String             @unique
+  normalizedUrl     String?            @unique
+  domain            String
+
+  status            DiscoveryStatus    @default(DISCOVERED)
+
+  sourceId          Int?
+  crawlRunId        Int?
+
+  discoveredFromUrl String?
+  discoveryMethod   String?
+
+  firstDiscoveredAt TimestamptzString  @default(now())
+  lastSeenAt        TimestamptzString?
+  crawledAt         TimestamptzString?
+
+  httpStatus        Int?
+  contentHash       String?
+
+  errorMessage      String?
+
+  source            Source?            @relation(fields: [sourceId], references: [id])
+  crawlRun          CrawlRun?           @relation(fields: [crawlRunId], references: [id])
+  snapshots         ContentSnapshot[]
+
+  @@index([status])
+  @@index([domain])
+  @@index([sourceId])
+  @@index([crawlRunId])
+}
+
+model ContentSnapshot {
+  id                Int                @id @default(autoincrement())
+  discoveredUrlId   Int
+  crawlRunId        Int
+  requestedUrl      String
+  finalUrl          String
+  httpStatus        Int?
+  contentHash       String?
+  extractedText     String?
+  retrievedAt       TimestamptzString  @default(now())
+  errorMessage      String?
+
+  discoveredUrl     DiscoveredUrl      @relation(fields: [discoveredUrlId], references: [id])
+  crawlRun          CrawlRun           @relation(fields: [crawlRunId], references: [id])
+
+  @@index([discoveredUrlId])
+  @@index([crawlRunId])
+  @@index([contentHash])
+  @@index([retrievedAt])
+}

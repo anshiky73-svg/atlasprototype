@@ -1,69 +1,158 @@
-import Image from "next/image";
+import Link from "next/link";
+import { MetricCard } from "@/components/metric-card";
+import { ScholarshipTable } from "@/components/scholarship-table";
+import { StatusBadge } from "@/components/status-badge";
+import { hasDatabaseConfig } from "@/lib/config/env";
+import { getDashboardData, getScholarships } from "@/lib/data/scholarships";
 
-export default function Home() {
+export const dynamic = "force-dynamic";
+
+type SearchParams = Promise<{ q?: string | string[]; status?: string | string[] }>;
+
+function first(value: string | string[] | undefined) {
+  return Array.isArray(value) ? value[0] : value;
+}
+
+function formatDate(value: string | null | undefined) {
+  if (!value) return "No runs yet";
+  const date = new Date(value);
+  return Number.isNaN(date.getTime())
+    ? value
+    : new Intl.DateTimeFormat("en-IN", {
+        day: "numeric",
+        month: "short",
+        year: "numeric",
+        hour: "numeric",
+        minute: "2-digit",
+      }).format(date);
+}
+
+export default async function Home({ searchParams }: { searchParams: SearchParams }) {
+  const params = await searchParams;
+  const query = first(params.q) ?? "";
+  const status = first(params.status) ?? "";
+
+  if (!hasDatabaseConfig()) {
+    return (
+      <div className="page-wrap">
+        <section className="page-heading">
+          <div>
+            <span className="eyebrow">SCHOLARSHIP DISCOVERY</span>
+            <h1>Find funding with confidence.</h1>
+            <p className="page-description">A living, evidence-backed view of scholarships for students in India.</p>
+          </div>
+        </section>
+        <section className="setup-banner">
+          <span className="setup-icon">i</span>
+          <div>
+            <h2>Connect your database to get started</h2>
+            <p>
+              Set <code>DATABASE_URL</code> in your local environment, apply the Prisma 8 contract, and start the app again.
+              No scholarship records are shown until they have been collected from real sources.
+            </p>
+          </div>
+          <Link className="button button-secondary" href="/crawler">Setup guide <span>→</span></Link>
+        </section>
+        <section className="data-principle">
+          <span className="eyebrow">OUR STANDARD</span>
+          <h2>No guesses. Every fact has a source.</h2>
+          <p>Scholarships are verified against primary sources. Unsupported facts remain unspecified and confidence is calculated by deterministic rules.</p>
+        </section>
+      </div>
+    );
+  }
+
+  const [dashboard, scholarships] = await Promise.all([
+    getDashboardData(),
+    getScholarships(query, status),
+  ]);
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert h-5 w-[100px]"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the{" "}
-            <code className="rounded bg-black/[.06] px-1.5 py-0.5 font-mono text-[0.9em] dark:bg-white/[.08]">
-              page.tsx
-            </code>{" "}
-            file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+    <div className="page-wrap">
+      <section className="page-heading heading-with-action">
+        <div>
+          <span className="eyebrow">SCHOLARSHIP DISCOVERY</span>
+          <h1>Find funding with confidence.</h1>
+          <p className="page-description">A living, evidence-backed view of scholarships for students in India.</p>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert h-[14px] w-4"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={14}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+        <Link className="button button-primary" href="/crawler"><span className="button-symbol">↻</span> Open crawler</Link>
+      </section>
+
+      <section className="metric-grid" aria-label="Scholarship statistics">
+        <MetricCard label="URLs discovered" value={dashboard.totalDiscovered} detail="Official-source queue" accent="blue" />
+        <MetricCard label="Verified awards" value={dashboard.verified} detail={`${dashboard.totalScholarships} extracted records`} accent="green" />
+        <MetricCard label="Need review" value={dashboard.reviewRequired} detail="Below the verification threshold" accent="amber" />
+        <MetricCard label="Average confidence" value={`${Math.round(dashboard.averageConfidence)}%`} detail={`${dashboard.active} active · ${dashboard.expired} expired`} accent="violet" />
+      </section>
+
+      <section className="section-card">
+        <div className="section-heading">
+          <div>
+            <span className="eyebrow">LATEST RECORDS</span>
+            <h2>Scholarship opportunities</h2>
+            <p>Search and inspect the evidence behind every result.</p>
+          </div>
+          <Link className="text-link" href="/scholarships">Browse all <span>→</span></Link>
         </div>
-      </main>
+        <form className="filter-bar" method="get">
+          <label className="search-box">
+            <span aria-hidden="true">⌕</span>
+            <input name="q" defaultValue={query} placeholder="Search scholarships, providers, eligibility…" />
+          </label>
+          <label className="filter-select-label">
+            <span className="visually-hidden">Filter by status</span>
+            <select name="status" defaultValue={status}>
+              <option value="">All statuses</option>
+              <option value="ACTIVE">Active</option>
+              <option value="EXPIRING_SOON">Expiring soon</option>
+              <option value="EXPIRED">Expired</option>
+              <option value="REVIEW_REQUIRED">Review required</option>
+              <option value="NO_LONGER_VERIFIABLE">Unverifiable</option>
+            </select>
+          </label>
+          <button className="button button-secondary" type="submit">Search</button>
+        </form>
+        <ScholarshipTable scholarships={scholarships.slice(0, 8)} />
+      </section>
+
+      <div className="dashboard-bottom-grid">
+        <section className="section-card source-card">
+          <div className="section-heading compact-heading">
+            <div>
+              <span className="eyebrow">TRUST BOUNDARY</span>
+              <h2>Official sources first</h2>
+            </div>
+            <span className="round-icon">✓</span>
+          </div>
+          <p className="card-copy">AI extracts candidate facts. The application checks primary sources and evidence before it awards confidence points.</p>
+          <div className="principle-row"><span className="principle-check">✓</span> Evidence tied to individual fields</div>
+          <div className="principle-row"><span className="principle-check">✓</span> Deterministic 95% verification threshold</div>
+          <div className="principle-row"><span className="principle-check">✓</span> Version history preserves meaningful changes</div>
+          <Link className="text-link" href="/crawler">Review the pipeline <span>→</span></Link>
+        </section>
+        <section className="section-card run-summary-card">
+          <div className="section-heading compact-heading">
+            <div>
+              <span className="eyebrow">AUTOMATION</span>
+              <h2>Latest crawler run</h2>
+            </div>
+            {dashboard.latestRun && <StatusBadge value={dashboard.latestRun.status} />}
+          </div>
+          {dashboard.latestRun ? (
+            <>
+              <p className="run-date">Started {formatDate(dashboard.latestRun.startedAt)}</p>
+              <div className="run-stats">
+                <div><strong>{dashboard.latestRun.discoveredCount}</strong><span>discovered</span></div>
+                <div><strong>{dashboard.latestRun.crawledCount}</strong><span>crawled</span></div>
+                <div><strong>{dashboard.latestRun.verifiedCount}</strong><span>verified</span></div>
+              </div>
+            </>
+          ) : (
+            <p className="empty-run">No crawler runs recorded yet. Start a bounded discovery run when configuration is ready.</p>
+          )}
+          <Link className="button button-secondary full-button" href="/crawler">View crawler activity <span>→</span></Link>
+        </section>
+      </div>
     </div>
   );
 }

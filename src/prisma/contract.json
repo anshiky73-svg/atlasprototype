@@ -1,0 +1,3745 @@
+{
+  "schemaVersion": "1",
+  "targetFamily": "sql",
+  "target": "postgres",
+  "profileHash": "3916f444a8a17ad749191acf9e08dad97d1a327b88c2f1d45d12f240296aa8b2",
+  "roots": {
+    "ChangeEvent": {
+      "model": "ChangeEvent",
+      "namespace": "public"
+    },
+    "ContentSnapshot": {
+      "model": "ContentSnapshot",
+      "namespace": "public"
+    },
+    "CrawlRun": {
+      "model": "CrawlRun",
+      "namespace": "public"
+    },
+    "DiscoveredUrl": {
+      "model": "DiscoveredUrl",
+      "namespace": "public"
+    },
+    "Evidence": {
+      "model": "Evidence",
+      "namespace": "public"
+    },
+    "Scholarship": {
+      "model": "Scholarship",
+      "namespace": "public"
+    },
+    "ScholarshipVersion": {
+      "model": "ScholarshipVersion",
+      "namespace": "public"
+    },
+    "Source": {
+      "model": "Source",
+      "namespace": "public"
+    }
+  },
+  "domain": {
+    "namespaces": {
+      "public": {
+        "enum": {
+          "CrawlStatus": {
+            "codecId": "pg/text@1",
+            "members": [
+              {
+                "name": "RUNNING",
+                "value": "RUNNING"
+              },
+              {
+                "name": "COMPLETED",
+                "value": "COMPLETED"
+              },
+              {
+                "name": "FAILED",
+                "value": "FAILED"
+              }
+            ]
+          },
+          "DiscoveryStatus": {
+            "codecId": "pg/text@1",
+            "members": [
+              {
+                "name": "DISCOVERED",
+                "value": "DISCOVERED"
+              },
+              {
+                "name": "QUEUED",
+                "value": "QUEUED"
+              },
+              {
+                "name": "CRAWLED",
+                "value": "CRAWLED"
+              },
+              {
+                "name": "PROCESSED",
+                "value": "PROCESSED"
+              },
+              {
+                "name": "REJECTED",
+                "value": "REJECTED"
+              },
+              {
+                "name": "FAILED",
+                "value": "FAILED"
+              }
+            ]
+          },
+          "EvidenceType": {
+            "codecId": "pg/text@1",
+            "members": [
+              {
+                "name": "NAME",
+                "value": "NAME"
+              },
+              {
+                "name": "PROVIDER",
+                "value": "PROVIDER"
+              },
+              {
+                "name": "AMOUNT",
+                "value": "AMOUNT"
+              },
+              {
+                "name": "ELIGIBILITY",
+                "value": "ELIGIBILITY"
+              },
+              {
+                "name": "ACADEMIC_REQUIREMENTS",
+                "value": "ACADEMIC_REQUIREMENTS"
+              },
+              {
+                "name": "EDUCATION_LEVEL",
+                "value": "EDUCATION_LEVEL"
+              },
+              {
+                "name": "INCOME",
+                "value": "INCOME"
+              },
+              {
+                "name": "AGE",
+                "value": "AGE"
+              },
+              {
+                "name": "GENDER",
+                "value": "GENDER"
+              },
+              {
+                "name": "CATEGORY",
+                "value": "CATEGORY"
+              },
+              {
+                "name": "DOMICILE",
+                "value": "DOMICILE"
+              },
+              {
+                "name": "INSTITUTION",
+                "value": "INSTITUTION"
+              },
+              {
+                "name": "OPENING_DATE",
+                "value": "OPENING_DATE"
+              },
+              {
+                "name": "CLOSING_DATE",
+                "value": "CLOSING_DATE"
+              },
+              {
+                "name": "DOCUMENTS",
+                "value": "DOCUMENTS"
+              },
+              {
+                "name": "SELECTION_PROCESS",
+                "value": "SELECTION_PROCESS"
+              },
+              {
+                "name": "RENEWAL",
+                "value": "RENEWAL"
+              },
+              {
+                "name": "APPLICATION_URL",
+                "value": "APPLICATION_URL"
+              },
+              {
+                "name": "STATUS",
+                "value": "STATUS"
+              },
+              {
+                "name": "GENERAL",
+                "value": "GENERAL"
+              }
+            ]
+          },
+          "ScholarshipStatus": {
+            "codecId": "pg/text@1",
+            "members": [
+              {
+                "name": "ACTIVE",
+                "value": "ACTIVE"
+              },
+              {
+                "name": "EXPIRING_SOON",
+                "value": "EXPIRING_SOON"
+              },
+              {
+                "name": "EXPIRED",
+                "value": "EXPIRED"
+              },
+              {
+                "name": "REVIEW_REQUIRED",
+                "value": "REVIEW_REQUIRED"
+              },
+              {
+                "name": "NO_LONGER_VERIFIABLE",
+                "value": "NO_LONGER_VERIFIABLE"
+              }
+            ]
+          },
+          "SourceType": {
+            "codecId": "pg/text@1",
+            "members": [
+              {
+                "name": "GOVERNMENT",
+                "value": "GOVERNMENT"
+              },
+              {
+                "name": "UNIVERSITY",
+                "value": "UNIVERSITY"
+              },
+              {
+                "name": "UGC",
+                "value": "UGC"
+              },
+              {
+                "name": "AICTE",
+                "value": "AICTE"
+              },
+              {
+                "name": "MINISTRY",
+                "value": "MINISTRY"
+              },
+              {
+                "name": "CSR",
+                "value": "CSR"
+              },
+              {
+                "name": "FOUNDATION",
+                "value": "FOUNDATION"
+              },
+              {
+                "name": "TRUST",
+                "value": "TRUST"
+              },
+              {
+                "name": "OTHER_OFFICIAL",
+                "value": "OTHER_OFFICIAL"
+              }
+            ]
+          },
+          "VerificationStatus": {
+            "codecId": "pg/text@1",
+            "members": [
+              {
+                "name": "VERIFIED",
+                "value": "VERIFIED"
+              },
+              {
+                "name": "REVIEW_REQUIRED",
+                "value": "REVIEW_REQUIRED"
+              },
+              {
+                "name": "FAILED",
+                "value": "FAILED"
+              }
+            ]
+          }
+        },
+        "models": {
+          "ChangeEvent": {
+            "fields": {
+              "crawlRunId": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              },
+              "detectedAt": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "kind": "scalar"
+                }
+              },
+              "evidenceText": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "fieldName": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "id": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              },
+              "newValue": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "oldValue": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "scholarshipId": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              },
+              "sourceUrl": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              }
+            },
+            "relations": {
+              "crawlRun": {
+                "cardinality": "N:1",
+                "nullable": true,
+                "on": {
+                  "localFields": [
+                    "crawlRunId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
+                },
+                "to": {
+                  "model": "CrawlRun",
+                  "namespace": "public"
+                }
+              },
+              "scholarship": {
+                "cardinality": "N:1",
+                "nullable": false,
+                "on": {
+                  "localFields": [
+                    "scholarshipId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
+                },
+                "to": {
+                  "model": "Scholarship",
+                  "namespace": "public"
+                }
+              }
+            },
+            "storage": {
+              "fields": {
+                "crawlRunId": {
+                  "column": "crawlRunId"
+                },
+                "detectedAt": {
+                  "column": "detectedAt"
+                },
+                "evidenceText": {
+                  "column": "evidenceText"
+                },
+                "fieldName": {
+                  "column": "fieldName"
+                },
+                "id": {
+                  "column": "id"
+                },
+                "newValue": {
+                  "column": "newValue"
+                },
+                "oldValue": {
+                  "column": "oldValue"
+                },
+                "scholarshipId": {
+                  "column": "scholarshipId"
+                },
+                "sourceUrl": {
+                  "column": "sourceUrl"
+                }
+              },
+              "namespaceId": "public",
+              "table": "ChangeEvent"
+            }
+          },
+          "ContentSnapshot": {
+            "fields": {
+              "contentHash": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "crawlRunId": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              },
+              "discoveredUrlId": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              },
+              "errorMessage": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "extractedText": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "finalUrl": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "httpStatus": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              },
+              "id": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              },
+              "requestedUrl": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "retrievedAt": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "kind": "scalar"
+                }
+              }
+            },
+            "relations": {
+              "crawlRun": {
+                "cardinality": "N:1",
+                "nullable": false,
+                "on": {
+                  "localFields": [
+                    "crawlRunId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
+                },
+                "to": {
+                  "model": "CrawlRun",
+                  "namespace": "public"
+                }
+              },
+              "discoveredUrl": {
+                "cardinality": "N:1",
+                "nullable": false,
+                "on": {
+                  "localFields": [
+                    "discoveredUrlId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
+                },
+                "to": {
+                  "model": "DiscoveredUrl",
+                  "namespace": "public"
+                }
+              }
+            },
+            "storage": {
+              "fields": {
+                "contentHash": {
+                  "column": "contentHash"
+                },
+                "crawlRunId": {
+                  "column": "crawlRunId"
+                },
+                "discoveredUrlId": {
+                  "column": "discoveredUrlId"
+                },
+                "errorMessage": {
+                  "column": "errorMessage"
+                },
+                "extractedText": {
+                  "column": "extractedText"
+                },
+                "finalUrl": {
+                  "column": "finalUrl"
+                },
+                "httpStatus": {
+                  "column": "httpStatus"
+                },
+                "id": {
+                  "column": "id"
+                },
+                "requestedUrl": {
+                  "column": "requestedUrl"
+                },
+                "retrievedAt": {
+                  "column": "retrievedAt"
+                }
+              },
+              "namespaceId": "public",
+              "table": "ContentSnapshot"
+            }
+          },
+          "CrawlRun": {
+            "fields": {
+              "completedAt": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "kind": "scalar"
+                }
+              },
+              "crawledCount": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              },
+              "createdAt": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "kind": "scalar"
+                }
+              },
+              "discoveredCount": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              },
+              "errorMessage": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "expiredCount": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              },
+              "extractedCount": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              },
+              "failedCount": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              },
+              "id": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              },
+              "newScholarshipCount": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              },
+              "reviewRequiredCount": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              },
+              "startedAt": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "kind": "scalar"
+                }
+              },
+              "status": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                },
+                "valueSet": {
+                  "entityKind": "enum",
+                  "entityName": "CrawlStatus",
+                  "namespaceId": "public",
+                  "plane": "domain"
+                }
+              },
+              "updatedScholarshipCount": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              },
+              "verifiedCount": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              }
+            },
+            "relations": {
+              "changes": {
+                "cardinality": "1:N",
+                "on": {
+                  "localFields": [
+                    "id"
+                  ],
+                  "targetFields": [
+                    "crawlRunId"
+                  ]
+                },
+                "to": {
+                  "model": "ChangeEvent",
+                  "namespace": "public"
+                }
+              },
+              "discoveredUrls": {
+                "cardinality": "1:N",
+                "on": {
+                  "localFields": [
+                    "id"
+                  ],
+                  "targetFields": [
+                    "crawlRunId"
+                  ]
+                },
+                "to": {
+                  "model": "DiscoveredUrl",
+                  "namespace": "public"
+                }
+              },
+              "evidence": {
+                "cardinality": "1:N",
+                "on": {
+                  "localFields": [
+                    "id"
+                  ],
+                  "targetFields": [
+                    "crawlRunId"
+                  ]
+                },
+                "to": {
+                  "model": "Evidence",
+                  "namespace": "public"
+                }
+              },
+              "snapshots": {
+                "cardinality": "1:N",
+                "on": {
+                  "localFields": [
+                    "id"
+                  ],
+                  "targetFields": [
+                    "crawlRunId"
+                  ]
+                },
+                "to": {
+                  "model": "ContentSnapshot",
+                  "namespace": "public"
+                }
+              },
+              "versions": {
+                "cardinality": "1:N",
+                "on": {
+                  "localFields": [
+                    "id"
+                  ],
+                  "targetFields": [
+                    "crawlRunId"
+                  ]
+                },
+                "to": {
+                  "model": "ScholarshipVersion",
+                  "namespace": "public"
+                }
+              }
+            },
+            "storage": {
+              "fields": {
+                "completedAt": {
+                  "column": "completedAt"
+                },
+                "crawledCount": {
+                  "column": "crawledCount"
+                },
+                "createdAt": {
+                  "column": "createdAt"
+                },
+                "discoveredCount": {
+                  "column": "discoveredCount"
+                },
+                "errorMessage": {
+                  "column": "errorMessage"
+                },
+                "expiredCount": {
+                  "column": "expiredCount"
+                },
+                "extractedCount": {
+                  "column": "extractedCount"
+                },
+                "failedCount": {
+                  "column": "failedCount"
+                },
+                "id": {
+                  "column": "id"
+                },
+                "newScholarshipCount": {
+                  "column": "newScholarshipCount"
+                },
+                "reviewRequiredCount": {
+                  "column": "reviewRequiredCount"
+                },
+                "startedAt": {
+                  "column": "startedAt"
+                },
+                "status": {
+                  "column": "status"
+                },
+                "updatedScholarshipCount": {
+                  "column": "updatedScholarshipCount"
+                },
+                "verifiedCount": {
+                  "column": "verifiedCount"
+                }
+              },
+              "namespaceId": "public",
+              "table": "CrawlRun"
+            }
+          },
+          "DiscoveredUrl": {
+            "fields": {
+              "contentHash": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "crawlRunId": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              },
+              "crawledAt": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "kind": "scalar"
+                }
+              },
+              "discoveredFromUrl": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "discoveryMethod": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "domain": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "errorMessage": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "firstDiscoveredAt": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "kind": "scalar"
+                }
+              },
+              "httpStatus": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              },
+              "id": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              },
+              "lastSeenAt": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "kind": "scalar"
+                }
+              },
+              "normalizedUrl": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "sourceId": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              },
+              "status": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                },
+                "valueSet": {
+                  "entityKind": "enum",
+                  "entityName": "DiscoveryStatus",
+                  "namespaceId": "public",
+                  "plane": "domain"
+                }
+              },
+              "url": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              }
+            },
+            "relations": {
+              "crawlRun": {
+                "cardinality": "N:1",
+                "nullable": true,
+                "on": {
+                  "localFields": [
+                    "crawlRunId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
+                },
+                "to": {
+                  "model": "CrawlRun",
+                  "namespace": "public"
+                }
+              },
+              "snapshots": {
+                "cardinality": "1:N",
+                "on": {
+                  "localFields": [
+                    "id"
+                  ],
+                  "targetFields": [
+                    "discoveredUrlId"
+                  ]
+                },
+                "to": {
+                  "model": "ContentSnapshot",
+                  "namespace": "public"
+                }
+              },
+              "source": {
+                "cardinality": "N:1",
+                "nullable": true,
+                "on": {
+                  "localFields": [
+                    "sourceId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
+                },
+                "to": {
+                  "model": "Source",
+                  "namespace": "public"
+                }
+              }
+            },
+            "storage": {
+              "fields": {
+                "contentHash": {
+                  "column": "contentHash"
+                },
+                "crawlRunId": {
+                  "column": "crawlRunId"
+                },
+                "crawledAt": {
+                  "column": "crawledAt"
+                },
+                "discoveredFromUrl": {
+                  "column": "discoveredFromUrl"
+                },
+                "discoveryMethod": {
+                  "column": "discoveryMethod"
+                },
+                "domain": {
+                  "column": "domain"
+                },
+                "errorMessage": {
+                  "column": "errorMessage"
+                },
+                "firstDiscoveredAt": {
+                  "column": "firstDiscoveredAt"
+                },
+                "httpStatus": {
+                  "column": "httpStatus"
+                },
+                "id": {
+                  "column": "id"
+                },
+                "lastSeenAt": {
+                  "column": "lastSeenAt"
+                },
+                "normalizedUrl": {
+                  "column": "normalizedUrl"
+                },
+                "sourceId": {
+                  "column": "sourceId"
+                },
+                "status": {
+                  "column": "status"
+                },
+                "url": {
+                  "column": "url"
+                }
+              },
+              "namespaceId": "public",
+              "table": "DiscoveredUrl"
+            }
+          },
+          "Evidence": {
+            "fields": {
+              "contentHash": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "crawlRunId": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              },
+              "createdAt": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "kind": "scalar"
+                }
+              },
+              "evidenceText": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "extractedValue": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "fieldName": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                },
+                "valueSet": {
+                  "entityKind": "enum",
+                  "entityName": "EvidenceType",
+                  "namespaceId": "public",
+                  "plane": "domain"
+                }
+              },
+              "id": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              },
+              "isOfficialSource": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/bool@1",
+                  "kind": "scalar"
+                }
+              },
+              "retrievedAt": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "kind": "scalar"
+                }
+              },
+              "scholarshipId": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              },
+              "sourceId": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              },
+              "sourceUrl": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "supportsClaim": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/bool@1",
+                  "kind": "scalar"
+                }
+              }
+            },
+            "relations": {
+              "crawlRun": {
+                "cardinality": "N:1",
+                "nullable": true,
+                "on": {
+                  "localFields": [
+                    "crawlRunId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
+                },
+                "to": {
+                  "model": "CrawlRun",
+                  "namespace": "public"
+                }
+              },
+              "scholarship": {
+                "cardinality": "N:1",
+                "nullable": false,
+                "on": {
+                  "localFields": [
+                    "scholarshipId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
+                },
+                "to": {
+                  "model": "Scholarship",
+                  "namespace": "public"
+                }
+              },
+              "source": {
+                "cardinality": "N:1",
+                "nullable": true,
+                "on": {
+                  "localFields": [
+                    "sourceId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
+                },
+                "to": {
+                  "model": "Source",
+                  "namespace": "public"
+                }
+              }
+            },
+            "storage": {
+              "fields": {
+                "contentHash": {
+                  "column": "contentHash"
+                },
+                "crawlRunId": {
+                  "column": "crawlRunId"
+                },
+                "createdAt": {
+                  "column": "createdAt"
+                },
+                "evidenceText": {
+                  "column": "evidenceText"
+                },
+                "extractedValue": {
+                  "column": "extractedValue"
+                },
+                "fieldName": {
+                  "column": "fieldName"
+                },
+                "id": {
+                  "column": "id"
+                },
+                "isOfficialSource": {
+                  "column": "isOfficialSource"
+                },
+                "retrievedAt": {
+                  "column": "retrievedAt"
+                },
+                "scholarshipId": {
+                  "column": "scholarshipId"
+                },
+                "sourceId": {
+                  "column": "sourceId"
+                },
+                "sourceUrl": {
+                  "column": "sourceUrl"
+                },
+                "supportsClaim": {
+                  "column": "supportsClaim"
+                }
+              },
+              "namespaceId": "public",
+              "table": "Evidence"
+            }
+          },
+          "Scholarship": {
+            "fields": {
+              "academicRequirements": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "ageCriteria": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "amount": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "applicationUrl": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "categoryCriteria": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "closingDate": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "kind": "scalar"
+                }
+              },
+              "confidenceBreakdown": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "confidenceScore": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              },
+              "createdAt": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "kind": "scalar"
+                }
+              },
+              "currentContentHash": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "documentsRequired": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "domicileCriteria": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "educationLevel": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "eligibility": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "genderCriteria": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "id": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              },
+              "incomeCriteria": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "institutionRequirements": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "lastCrawledAt": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "kind": "scalar"
+                }
+              },
+              "lastEvidenceHash": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "lastVerifiedAt": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "kind": "scalar"
+                }
+              },
+              "name": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "officialSourceUrl": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "openingDate": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "kind": "scalar"
+                }
+              },
+              "provider": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "renewalRequirements": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "selectionProcess": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "sourceId": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              },
+              "sourceType": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                },
+                "valueSet": {
+                  "entityKind": "enum",
+                  "entityName": "SourceType",
+                  "namespaceId": "public",
+                  "plane": "domain"
+                }
+              },
+              "status": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                },
+                "valueSet": {
+                  "entityKind": "enum",
+                  "entityName": "ScholarshipStatus",
+                  "namespaceId": "public",
+                  "plane": "domain"
+                }
+              },
+              "updatedAt": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "kind": "scalar"
+                }
+              },
+              "verificationStatus": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                },
+                "valueSet": {
+                  "entityKind": "enum",
+                  "entityName": "VerificationStatus",
+                  "namespaceId": "public",
+                  "plane": "domain"
+                }
+              }
+            },
+            "relations": {
+              "changes": {
+                "cardinality": "1:N",
+                "on": {
+                  "localFields": [
+                    "id"
+                  ],
+                  "targetFields": [
+                    "scholarshipId"
+                  ]
+                },
+                "to": {
+                  "model": "ChangeEvent",
+                  "namespace": "public"
+                }
+              },
+              "evidence": {
+                "cardinality": "1:N",
+                "on": {
+                  "localFields": [
+                    "id"
+                  ],
+                  "targetFields": [
+                    "scholarshipId"
+                  ]
+                },
+                "to": {
+                  "model": "Evidence",
+                  "namespace": "public"
+                }
+              },
+              "source": {
+                "cardinality": "N:1",
+                "nullable": true,
+                "on": {
+                  "localFields": [
+                    "sourceId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
+                },
+                "to": {
+                  "model": "Source",
+                  "namespace": "public"
+                }
+              },
+              "versions": {
+                "cardinality": "1:N",
+                "on": {
+                  "localFields": [
+                    "id"
+                  ],
+                  "targetFields": [
+                    "scholarshipId"
+                  ]
+                },
+                "to": {
+                  "model": "ScholarshipVersion",
+                  "namespace": "public"
+                }
+              }
+            },
+            "storage": {
+              "fields": {
+                "academicRequirements": {
+                  "column": "academicRequirements"
+                },
+                "ageCriteria": {
+                  "column": "ageCriteria"
+                },
+                "amount": {
+                  "column": "amount"
+                },
+                "applicationUrl": {
+                  "column": "applicationUrl"
+                },
+                "categoryCriteria": {
+                  "column": "categoryCriteria"
+                },
+                "closingDate": {
+                  "column": "closingDate"
+                },
+                "confidenceBreakdown": {
+                  "column": "confidenceBreakdown"
+                },
+                "confidenceScore": {
+                  "column": "confidenceScore"
+                },
+                "createdAt": {
+                  "column": "createdAt"
+                },
+                "currentContentHash": {
+                  "column": "currentContentHash"
+                },
+                "documentsRequired": {
+                  "column": "documentsRequired"
+                },
+                "domicileCriteria": {
+                  "column": "domicileCriteria"
+                },
+                "educationLevel": {
+                  "column": "educationLevel"
+                },
+                "eligibility": {
+                  "column": "eligibility"
+                },
+                "genderCriteria": {
+                  "column": "genderCriteria"
+                },
+                "id": {
+                  "column": "id"
+                },
+                "incomeCriteria": {
+                  "column": "incomeCriteria"
+                },
+                "institutionRequirements": {
+                  "column": "institutionRequirements"
+                },
+                "lastCrawledAt": {
+                  "column": "lastCrawledAt"
+                },
+                "lastEvidenceHash": {
+                  "column": "lastEvidenceHash"
+                },
+                "lastVerifiedAt": {
+                  "column": "lastVerifiedAt"
+                },
+                "name": {
+                  "column": "name"
+                },
+                "officialSourceUrl": {
+                  "column": "officialSourceUrl"
+                },
+                "openingDate": {
+                  "column": "openingDate"
+                },
+                "provider": {
+                  "column": "provider"
+                },
+                "renewalRequirements": {
+                  "column": "renewalRequirements"
+                },
+                "selectionProcess": {
+                  "column": "selectionProcess"
+                },
+                "sourceId": {
+                  "column": "sourceId"
+                },
+                "sourceType": {
+                  "column": "sourceType"
+                },
+                "status": {
+                  "column": "status"
+                },
+                "updatedAt": {
+                  "column": "updatedAt"
+                },
+                "verificationStatus": {
+                  "column": "verificationStatus"
+                }
+              },
+              "namespaceId": "public",
+              "table": "Scholarship"
+            }
+          },
+          "ScholarshipVersion": {
+            "fields": {
+              "academicRequirements": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "ageCriteria": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "amount": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "applicationUrl": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "capturedAt": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "kind": "scalar"
+                }
+              },
+              "categoryCriteria": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "closingDate": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "kind": "scalar"
+                }
+              },
+              "confidenceScore": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              },
+              "contentHash": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "crawlRunId": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              },
+              "documentsRequired": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "domicileCriteria": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "educationLevel": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "eligibility": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "genderCriteria": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "id": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              },
+              "incomeCriteria": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "institutionRequirements": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "name": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "officialSourceUrl": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "openingDate": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "kind": "scalar"
+                }
+              },
+              "provider": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "renewalRequirements": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "scholarshipId": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              },
+              "selectionProcess": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "sourceUrl": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "verificationStatus": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                },
+                "valueSet": {
+                  "entityKind": "enum",
+                  "entityName": "VerificationStatus",
+                  "namespaceId": "public",
+                  "plane": "domain"
+                }
+              }
+            },
+            "relations": {
+              "crawlRun": {
+                "cardinality": "N:1",
+                "nullable": true,
+                "on": {
+                  "localFields": [
+                    "crawlRunId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
+                },
+                "to": {
+                  "model": "CrawlRun",
+                  "namespace": "public"
+                }
+              },
+              "scholarship": {
+                "cardinality": "N:1",
+                "nullable": false,
+                "on": {
+                  "localFields": [
+                    "scholarshipId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
+                },
+                "to": {
+                  "model": "Scholarship",
+                  "namespace": "public"
+                }
+              }
+            },
+            "storage": {
+              "fields": {
+                "academicRequirements": {
+                  "column": "academicRequirements"
+                },
+                "ageCriteria": {
+                  "column": "ageCriteria"
+                },
+                "amount": {
+                  "column": "amount"
+                },
+                "applicationUrl": {
+                  "column": "applicationUrl"
+                },
+                "capturedAt": {
+                  "column": "capturedAt"
+                },
+                "categoryCriteria": {
+                  "column": "categoryCriteria"
+                },
+                "closingDate": {
+                  "column": "closingDate"
+                },
+                "confidenceScore": {
+                  "column": "confidenceScore"
+                },
+                "contentHash": {
+                  "column": "contentHash"
+                },
+                "crawlRunId": {
+                  "column": "crawlRunId"
+                },
+                "documentsRequired": {
+                  "column": "documentsRequired"
+                },
+                "domicileCriteria": {
+                  "column": "domicileCriteria"
+                },
+                "educationLevel": {
+                  "column": "educationLevel"
+                },
+                "eligibility": {
+                  "column": "eligibility"
+                },
+                "genderCriteria": {
+                  "column": "genderCriteria"
+                },
+                "id": {
+                  "column": "id"
+                },
+                "incomeCriteria": {
+                  "column": "incomeCriteria"
+                },
+                "institutionRequirements": {
+                  "column": "institutionRequirements"
+                },
+                "name": {
+                  "column": "name"
+                },
+                "officialSourceUrl": {
+                  "column": "officialSourceUrl"
+                },
+                "openingDate": {
+                  "column": "openingDate"
+                },
+                "provider": {
+                  "column": "provider"
+                },
+                "renewalRequirements": {
+                  "column": "renewalRequirements"
+                },
+                "scholarshipId": {
+                  "column": "scholarshipId"
+                },
+                "selectionProcess": {
+                  "column": "selectionProcess"
+                },
+                "sourceUrl": {
+                  "column": "sourceUrl"
+                },
+                "verificationStatus": {
+                  "column": "verificationStatus"
+                }
+              },
+              "namespaceId": "public",
+              "table": "ScholarshipVersion"
+            }
+          },
+          "Source": {
+            "fields": {
+              "active": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/bool@1",
+                  "kind": "scalar"
+                }
+              },
+              "createdAt": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "kind": "scalar"
+                }
+              },
+              "domain": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "id": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              },
+              "isOfficial": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/bool@1",
+                  "kind": "scalar"
+                }
+              },
+              "isPrimarySource": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/bool@1",
+                  "kind": "scalar"
+                }
+              },
+              "lastCrawledAt": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "kind": "scalar"
+                }
+              },
+              "lastVerifiedAt": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "kind": "scalar"
+                }
+              },
+              "name": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "sourceType": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                },
+                "valueSet": {
+                  "entityKind": "enum",
+                  "entityName": "SourceType",
+                  "namespaceId": "public",
+                  "plane": "domain"
+                }
+              },
+              "updatedAt": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "kind": "scalar"
+                }
+              },
+              "url": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              }
+            },
+            "relations": {
+              "discoveredUrls": {
+                "cardinality": "1:N",
+                "on": {
+                  "localFields": [
+                    "id"
+                  ],
+                  "targetFields": [
+                    "sourceId"
+                  ]
+                },
+                "to": {
+                  "model": "DiscoveredUrl",
+                  "namespace": "public"
+                }
+              },
+              "evidence": {
+                "cardinality": "1:N",
+                "on": {
+                  "localFields": [
+                    "id"
+                  ],
+                  "targetFields": [
+                    "sourceId"
+                  ]
+                },
+                "to": {
+                  "model": "Evidence",
+                  "namespace": "public"
+                }
+              },
+              "scholarships": {
+                "cardinality": "1:N",
+                "on": {
+                  "localFields": [
+                    "id"
+                  ],
+                  "targetFields": [
+                    "sourceId"
+                  ]
+                },
+                "to": {
+                  "model": "Scholarship",
+                  "namespace": "public"
+                }
+              }
+            },
+            "storage": {
+              "fields": {
+                "active": {
+                  "column": "active"
+                },
+                "createdAt": {
+                  "column": "createdAt"
+                },
+                "domain": {
+                  "column": "domain"
+                },
+                "id": {
+                  "column": "id"
+                },
+                "isOfficial": {
+                  "column": "isOfficial"
+                },
+                "isPrimarySource": {
+                  "column": "isPrimarySource"
+                },
+                "lastCrawledAt": {
+                  "column": "lastCrawledAt"
+                },
+                "lastVerifiedAt": {
+                  "column": "lastVerifiedAt"
+                },
+                "name": {
+                  "column": "name"
+                },
+                "sourceType": {
+                  "column": "sourceType"
+                },
+                "updatedAt": {
+                  "column": "updatedAt"
+                },
+                "url": {
+                  "column": "url"
+                }
+              },
+              "namespaceId": "public",
+              "table": "Source"
+            }
+          }
+        }
+      }
+    }
+  },
+  "storage": {
+    "namespaces": {
+      "public": {
+        "entries": {
+          "table": {
+            "ChangeEvent": {
+              "columns": {
+                "crawlRunId": {
+                  "codecId": "pg/int4@1",
+                  "nativeType": "int4",
+                  "nullable": true
+                },
+                "detectedAt": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "default": {
+                    "expression": "now()",
+                    "kind": "function"
+                  },
+                  "nativeType": "timestamptz",
+                  "nullable": false
+                },
+                "evidenceText": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": true
+                },
+                "fieldName": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": false
+                },
+                "id": {
+                  "codecId": "pg/int4@1",
+                  "default": {
+                    "expression": "autoincrement()",
+                    "kind": "function"
+                  },
+                  "nativeType": "int4",
+                  "nullable": false
+                },
+                "newValue": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": true
+                },
+                "oldValue": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": true
+                },
+                "scholarshipId": {
+                  "codecId": "pg/int4@1",
+                  "nativeType": "int4",
+                  "nullable": false
+                },
+                "sourceUrl": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": false
+                }
+              },
+              "foreignKeys": [
+                {
+                  "source": {
+                    "columns": [
+                      "scholarshipId"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "ChangeEvent"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "Scholarship"
+                  }
+                },
+                {
+                  "source": {
+                    "columns": [
+                      "crawlRunId"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "ChangeEvent"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "CrawlRun"
+                  }
+                }
+              ],
+              "indexes": [
+                {
+                  "columns": [
+                    "crawlRunId"
+                  ],
+                  "name": "ChangeEvent_crawlRunId_idx_89f782b2",
+                  "prefix": "ChangeEvent_crawlRunId_idx",
+                  "unique": false
+                },
+                {
+                  "columns": [
+                    "detectedAt"
+                  ],
+                  "name": "ChangeEvent_detectedAt_idx_7415771a",
+                  "prefix": "ChangeEvent_detectedAt_idx",
+                  "unique": false
+                },
+                {
+                  "columns": [
+                    "fieldName"
+                  ],
+                  "name": "ChangeEvent_fieldName_idx_f1c1a56f",
+                  "prefix": "ChangeEvent_fieldName_idx",
+                  "unique": false
+                },
+                {
+                  "columns": [
+                    "scholarshipId"
+                  ],
+                  "name": "ChangeEvent_scholarshipId_idx_faec57f5",
+                  "prefix": "ChangeEvent_scholarshipId_idx",
+                  "unique": false
+                }
+              ],
+              "primaryKey": {
+                "columns": [
+                  "id"
+                ]
+              },
+              "uniques": []
+            },
+            "ContentSnapshot": {
+              "columns": {
+                "contentHash": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": true
+                },
+                "crawlRunId": {
+                  "codecId": "pg/int4@1",
+                  "nativeType": "int4",
+                  "nullable": false
+                },
+                "discoveredUrlId": {
+                  "codecId": "pg/int4@1",
+                  "nativeType": "int4",
+                  "nullable": false
+                },
+                "errorMessage": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": true
+                },
+                "extractedText": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": true
+                },
+                "finalUrl": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": false
+                },
+                "httpStatus": {
+                  "codecId": "pg/int4@1",
+                  "nativeType": "int4",
+                  "nullable": true
+                },
+                "id": {
+                  "codecId": "pg/int4@1",
+                  "default": {
+                    "expression": "autoincrement()",
+                    "kind": "function"
+                  },
+                  "nativeType": "int4",
+                  "nullable": false
+                },
+                "requestedUrl": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": false
+                },
+                "retrievedAt": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "default": {
+                    "expression": "now()",
+                    "kind": "function"
+                  },
+                  "nativeType": "timestamptz",
+                  "nullable": false
+                }
+              },
+              "foreignKeys": [
+                {
+                  "source": {
+                    "columns": [
+                      "discoveredUrlId"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "ContentSnapshot"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "DiscoveredUrl"
+                  }
+                },
+                {
+                  "source": {
+                    "columns": [
+                      "crawlRunId"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "ContentSnapshot"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "CrawlRun"
+                  }
+                }
+              ],
+              "indexes": [
+                {
+                  "columns": [
+                    "contentHash"
+                  ],
+                  "name": "ContentSnapshot_contentHash_idx_905433f5",
+                  "prefix": "ContentSnapshot_contentHash_idx",
+                  "unique": false
+                },
+                {
+                  "columns": [
+                    "crawlRunId"
+                  ],
+                  "name": "ContentSnapshot_crawlRunId_idx_89f782b2",
+                  "prefix": "ContentSnapshot_crawlRunId_idx",
+                  "unique": false
+                },
+                {
+                  "columns": [
+                    "discoveredUrlId"
+                  ],
+                  "name": "ContentSnapshot_discoveredUrlId_idx_5064c4a3",
+                  "prefix": "ContentSnapshot_discoveredUrlId_idx",
+                  "unique": false
+                },
+                {
+                  "columns": [
+                    "retrievedAt"
+                  ],
+                  "name": "ContentSnapshot_retrievedAt_idx_1eeb9ecf",
+                  "prefix": "ContentSnapshot_retrievedAt_idx",
+                  "unique": false
+                }
+              ],
+              "primaryKey": {
+                "columns": [
+                  "id"
+                ]
+              },
+              "uniques": []
+            },
+            "CrawlRun": {
+              "checks": [
+                {
+                  "expression": "\"status\" IN ('RUNNING', 'COMPLETED', 'FAILED')",
+                  "name": "CrawlRun_status_check_a1d46110",
+                  "prefix": "CrawlRun_status_check"
+                }
+              ],
+              "columns": {
+                "completedAt": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "nativeType": "timestamptz",
+                  "nullable": true
+                },
+                "crawledCount": {
+                  "codecId": "pg/int4@1",
+                  "default": {
+                    "kind": "literal",
+                    "value": 0
+                  },
+                  "nativeType": "int4",
+                  "nullable": false
+                },
+                "createdAt": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "default": {
+                    "expression": "now()",
+                    "kind": "function"
+                  },
+                  "nativeType": "timestamptz",
+                  "nullable": false
+                },
+                "discoveredCount": {
+                  "codecId": "pg/int4@1",
+                  "default": {
+                    "kind": "literal",
+                    "value": 0
+                  },
+                  "nativeType": "int4",
+                  "nullable": false
+                },
+                "errorMessage": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": true
+                },
+                "expiredCount": {
+                  "codecId": "pg/int4@1",
+                  "default": {
+                    "kind": "literal",
+                    "value": 0
+                  },
+                  "nativeType": "int4",
+                  "nullable": false
+                },
+                "extractedCount": {
+                  "codecId": "pg/int4@1",
+                  "default": {
+                    "kind": "literal",
+                    "value": 0
+                  },
+                  "nativeType": "int4",
+                  "nullable": false
+                },
+                "failedCount": {
+                  "codecId": "pg/int4@1",
+                  "default": {
+                    "kind": "literal",
+                    "value": 0
+                  },
+                  "nativeType": "int4",
+                  "nullable": false
+                },
+                "id": {
+                  "codecId": "pg/int4@1",
+                  "default": {
+                    "expression": "autoincrement()",
+                    "kind": "function"
+                  },
+                  "nativeType": "int4",
+                  "nullable": false
+                },
+                "newScholarshipCount": {
+                  "codecId": "pg/int4@1",
+                  "default": {
+                    "kind": "literal",
+                    "value": 0
+                  },
+                  "nativeType": "int4",
+                  "nullable": false
+                },
+                "reviewRequiredCount": {
+                  "codecId": "pg/int4@1",
+                  "default": {
+                    "kind": "literal",
+                    "value": 0
+                  },
+                  "nativeType": "int4",
+                  "nullable": false
+                },
+                "startedAt": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "default": {
+                    "expression": "now()",
+                    "kind": "function"
+                  },
+                  "nativeType": "timestamptz",
+                  "nullable": false
+                },
+                "status": {
+                  "codecId": "pg/text@1",
+                  "default": {
+                    "kind": "literal",
+                    "value": "RUNNING"
+                  },
+                  "nativeType": "text",
+                  "nullable": false,
+                  "valueSet": {
+                    "entityKind": "valueSet",
+                    "entityName": "CrawlStatus",
+                    "namespaceId": "public",
+                    "plane": "storage"
+                  }
+                },
+                "updatedScholarshipCount": {
+                  "codecId": "pg/int4@1",
+                  "default": {
+                    "kind": "literal",
+                    "value": 0
+                  },
+                  "nativeType": "int4",
+                  "nullable": false
+                },
+                "verifiedCount": {
+                  "codecId": "pg/int4@1",
+                  "default": {
+                    "kind": "literal",
+                    "value": 0
+                  },
+                  "nativeType": "int4",
+                  "nullable": false
+                }
+              },
+              "foreignKeys": [],
+              "indexes": [
+                {
+                  "columns": [
+                    "startedAt"
+                  ],
+                  "name": "CrawlRun_startedAt_idx_cac56236",
+                  "prefix": "CrawlRun_startedAt_idx",
+                  "unique": false
+                },
+                {
+                  "columns": [
+                    "status"
+                  ],
+                  "name": "CrawlRun_status_idx_e98638ab",
+                  "prefix": "CrawlRun_status_idx",
+                  "unique": false
+                }
+              ],
+              "primaryKey": {
+                "columns": [
+                  "id"
+                ]
+              },
+              "uniques": []
+            },
+            "DiscoveredUrl": {
+              "checks": [
+                {
+                  "expression": "\"status\" IN ('DISCOVERED', 'QUEUED', 'CRAWLED', 'PROCESSED', 'REJECTED', 'FAILED')",
+                  "name": "DiscoveredUrl_status_check_e74133dd",
+                  "prefix": "DiscoveredUrl_status_check"
+                }
+              ],
+              "columns": {
+                "contentHash": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": true
+                },
+                "crawlRunId": {
+                  "codecId": "pg/int4@1",
+                  "nativeType": "int4",
+                  "nullable": true
+                },
+                "crawledAt": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "nativeType": "timestamptz",
+                  "nullable": true
+                },
+                "discoveredFromUrl": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": true
+                },
+                "discoveryMethod": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": true
+                },
+                "domain": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": false
+                },
+                "errorMessage": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": true
+                },
+                "firstDiscoveredAt": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "default": {
+                    "expression": "now()",
+                    "kind": "function"
+                  },
+                  "nativeType": "timestamptz",
+                  "nullable": false
+                },
+                "httpStatus": {
+                  "codecId": "pg/int4@1",
+                  "nativeType": "int4",
+                  "nullable": true
+                },
+                "id": {
+                  "codecId": "pg/int4@1",
+                  "default": {
+                    "expression": "autoincrement()",
+                    "kind": "function"
+                  },
+                  "nativeType": "int4",
+                  "nullable": false
+                },
+                "lastSeenAt": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "nativeType": "timestamptz",
+                  "nullable": true
+                },
+                "normalizedUrl": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": true
+                },
+                "sourceId": {
+                  "codecId": "pg/int4@1",
+                  "nativeType": "int4",
+                  "nullable": true
+                },
+                "status": {
+                  "codecId": "pg/text@1",
+                  "default": {
+                    "kind": "literal",
+                    "value": "DISCOVERED"
+                  },
+                  "nativeType": "text",
+                  "nullable": false,
+                  "valueSet": {
+                    "entityKind": "valueSet",
+                    "entityName": "DiscoveryStatus",
+                    "namespaceId": "public",
+                    "plane": "storage"
+                  }
+                },
+                "url": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": false
+                }
+              },
+              "foreignKeys": [
+                {
+                  "source": {
+                    "columns": [
+                      "sourceId"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "DiscoveredUrl"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "Source"
+                  }
+                },
+                {
+                  "source": {
+                    "columns": [
+                      "crawlRunId"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "DiscoveredUrl"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "CrawlRun"
+                  }
+                }
+              ],
+              "indexes": [
+                {
+                  "columns": [
+                    "crawlRunId"
+                  ],
+                  "name": "DiscoveredUrl_crawlRunId_idx_89f782b2",
+                  "prefix": "DiscoveredUrl_crawlRunId_idx",
+                  "unique": false
+                },
+                {
+                  "columns": [
+                    "domain"
+                  ],
+                  "name": "DiscoveredUrl_domain_idx_bc50540b",
+                  "prefix": "DiscoveredUrl_domain_idx",
+                  "unique": false
+                },
+                {
+                  "columns": [
+                    "sourceId"
+                  ],
+                  "name": "DiscoveredUrl_sourceId_idx_d92a2571",
+                  "prefix": "DiscoveredUrl_sourceId_idx",
+                  "unique": false
+                },
+                {
+                  "columns": [
+                    "status"
+                  ],
+                  "name": "DiscoveredUrl_status_idx_e98638ab",
+                  "prefix": "DiscoveredUrl_status_idx",
+                  "unique": false
+                }
+              ],
+              "primaryKey": {
+                "columns": [
+                  "id"
+                ]
+              },
+              "uniques": [
+                {
+                  "columns": [
+                    "url"
+                  ]
+                },
+                {
+                  "columns": [
+                    "normalizedUrl"
+                  ]
+                }
+              ]
+            },
+            "Evidence": {
+              "checks": [
+                {
+                  "expression": "\"fieldName\" IN ('NAME', 'PROVIDER', 'AMOUNT', 'ELIGIBILITY', 'ACADEMIC_REQUIREMENTS', 'EDUCATION_LEVEL', 'INCOME', 'AGE', 'GENDER', 'CATEGORY', 'DOMICILE', 'INSTITUTION', 'OPENING_DATE', 'CLOSING_DATE', 'DOCUMENTS', 'SELECTION_PROCESS', 'RENEWAL', 'APPLICATION_URL', 'STATUS', 'GENERAL')",
+                  "name": "Evidence_fieldName_check_a565aeb1",
+                  "prefix": "Evidence_fieldName_check"
+                }
+              ],
+              "columns": {
+                "contentHash": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": true
+                },
+                "crawlRunId": {
+                  "codecId": "pg/int4@1",
+                  "nativeType": "int4",
+                  "nullable": true
+                },
+                "createdAt": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "default": {
+                    "expression": "now()",
+                    "kind": "function"
+                  },
+                  "nativeType": "timestamptz",
+                  "nullable": false
+                },
+                "evidenceText": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": false
+                },
+                "extractedValue": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": true
+                },
+                "fieldName": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": false,
+                  "valueSet": {
+                    "entityKind": "valueSet",
+                    "entityName": "EvidenceType",
+                    "namespaceId": "public",
+                    "plane": "storage"
+                  }
+                },
+                "id": {
+                  "codecId": "pg/int4@1",
+                  "default": {
+                    "expression": "autoincrement()",
+                    "kind": "function"
+                  },
+                  "nativeType": "int4",
+                  "nullable": false
+                },
+                "isOfficialSource": {
+                  "codecId": "pg/bool@1",
+                  "default": {
+                    "kind": "literal",
+                    "value": false
+                  },
+                  "nativeType": "bool",
+                  "nullable": false
+                },
+                "retrievedAt": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "default": {
+                    "expression": "now()",
+                    "kind": "function"
+                  },
+                  "nativeType": "timestamptz",
+                  "nullable": false
+                },
+                "scholarshipId": {
+                  "codecId": "pg/int4@1",
+                  "nativeType": "int4",
+                  "nullable": false
+                },
+                "sourceId": {
+                  "codecId": "pg/int4@1",
+                  "nativeType": "int4",
+                  "nullable": true
+                },
+                "sourceUrl": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": false
+                },
+                "supportsClaim": {
+                  "codecId": "pg/bool@1",
+                  "default": {
+                    "kind": "literal",
+                    "value": true
+                  },
+                  "nativeType": "bool",
+                  "nullable": false
+                }
+              },
+              "foreignKeys": [
+                {
+                  "source": {
+                    "columns": [
+                      "scholarshipId"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "Evidence"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "Scholarship"
+                  }
+                },
+                {
+                  "source": {
+                    "columns": [
+                      "sourceId"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "Evidence"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "Source"
+                  }
+                },
+                {
+                  "source": {
+                    "columns": [
+                      "crawlRunId"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "Evidence"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "CrawlRun"
+                  }
+                }
+              ],
+              "indexes": [
+                {
+                  "columns": [
+                    "contentHash"
+                  ],
+                  "name": "Evidence_contentHash_idx_905433f5",
+                  "prefix": "Evidence_contentHash_idx",
+                  "unique": false
+                },
+                {
+                  "columns": [
+                    "crawlRunId"
+                  ],
+                  "name": "Evidence_crawlRunId_idx_89f782b2",
+                  "prefix": "Evidence_crawlRunId_idx",
+                  "unique": false
+                },
+                {
+                  "columns": [
+                    "fieldName"
+                  ],
+                  "name": "Evidence_fieldName_idx_f1c1a56f",
+                  "prefix": "Evidence_fieldName_idx",
+                  "unique": false
+                },
+                {
+                  "columns": [
+                    "scholarshipId"
+                  ],
+                  "name": "Evidence_scholarshipId_idx_faec57f5",
+                  "prefix": "Evidence_scholarshipId_idx",
+                  "unique": false
+                },
+                {
+                  "columns": [
+                    "sourceId"
+                  ],
+                  "name": "Evidence_sourceId_idx_d92a2571",
+                  "prefix": "Evidence_sourceId_idx",
+                  "unique": false
+                }
+              ],
+              "primaryKey": {
+                "columns": [
+                  "id"
+                ]
+              },
+              "uniques": []
+            },
+            "Scholarship": {
+              "checks": [
+                {
+                  "expression": "\"sourceType\" IN ('GOVERNMENT', 'UNIVERSITY', 'UGC', 'AICTE', 'MINISTRY', 'CSR', 'FOUNDATION', 'TRUST', 'OTHER_OFFICIAL')",
+                  "name": "Scholarship_sourceType_check_a4bc7fd9",
+                  "prefix": "Scholarship_sourceType_check"
+                },
+                {
+                  "expression": "\"status\" IN ('ACTIVE', 'EXPIRING_SOON', 'EXPIRED', 'REVIEW_REQUIRED', 'NO_LONGER_VERIFIABLE')",
+                  "name": "Scholarship_status_check_5795556c",
+                  "prefix": "Scholarship_status_check"
+                },
+                {
+                  "expression": "\"verificationStatus\" IN ('VERIFIED', 'REVIEW_REQUIRED', 'FAILED')",
+                  "name": "Scholarship_verificationStatus_check_68091580",
+                  "prefix": "Scholarship_verificationStatus_check"
+                }
+              ],
+              "columns": {
+                "academicRequirements": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": true
+                },
+                "ageCriteria": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": true
+                },
+                "amount": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": true
+                },
+                "applicationUrl": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": true
+                },
+                "categoryCriteria": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": true
+                },
+                "closingDate": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "nativeType": "timestamptz",
+                  "nullable": true
+                },
+                "confidenceBreakdown": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": true
+                },
+                "confidenceScore": {
+                  "codecId": "pg/int4@1",
+                  "default": {
+                    "kind": "literal",
+                    "value": 0
+                  },
+                  "nativeType": "int4",
+                  "nullable": false
+                },
+                "createdAt": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "default": {
+                    "expression": "now()",
+                    "kind": "function"
+                  },
+                  "nativeType": "timestamptz",
+                  "nullable": false
+                },
+                "currentContentHash": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": true
+                },
+                "documentsRequired": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": true
+                },
+                "domicileCriteria": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": true
+                },
+                "educationLevel": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": true
+                },
+                "eligibility": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": true
+                },
+                "genderCriteria": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": true
+                },
+                "id": {
+                  "codecId": "pg/int4@1",
+                  "default": {
+                    "expression": "autoincrement()",
+                    "kind": "function"
+                  },
+                  "nativeType": "int4",
+                  "nullable": false
+                },
+                "incomeCriteria": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": true
+                },
+                "institutionRequirements": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": true
+                },
+                "lastCrawledAt": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "nativeType": "timestamptz",
+                  "nullable": true
+                },
+                "lastEvidenceHash": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": true
+                },
+                "lastVerifiedAt": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "nativeType": "timestamptz",
+                  "nullable": true
+                },
+                "name": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": false
+                },
+                "officialSourceUrl": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": false
+                },
+                "openingDate": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "nativeType": "timestamptz",
+                  "nullable": true
+                },
+                "provider": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": true
+                },
+                "renewalRequirements": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": true
+                },
+                "selectionProcess": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": true
+                },
+                "sourceId": {
+                  "codecId": "pg/int4@1",
+                  "nativeType": "int4",
+                  "nullable": true
+                },
+                "sourceType": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": false,
+                  "valueSet": {
+                    "entityKind": "valueSet",
+                    "entityName": "SourceType",
+                    "namespaceId": "public",
+                    "plane": "storage"
+                  }
+                },
+                "status": {
+                  "codecId": "pg/text@1",
+                  "default": {
+                    "kind": "literal",
+                    "value": "REVIEW_REQUIRED"
+                  },
+                  "nativeType": "text",
+                  "nullable": false,
+                  "valueSet": {
+                    "entityKind": "valueSet",
+                    "entityName": "ScholarshipStatus",
+                    "namespaceId": "public",
+                    "plane": "storage"
+                  }
+                },
+                "updatedAt": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "nativeType": "timestamptz",
+                  "nullable": false
+                },
+                "verificationStatus": {
+                  "codecId": "pg/text@1",
+                  "default": {
+                    "kind": "literal",
+                    "value": "REVIEW_REQUIRED"
+                  },
+                  "nativeType": "text",
+                  "nullable": false,
+                  "valueSet": {
+                    "entityKind": "valueSet",
+                    "entityName": "VerificationStatus",
+                    "namespaceId": "public",
+                    "plane": "storage"
+                  }
+                }
+              },
+              "foreignKeys": [
+                {
+                  "source": {
+                    "columns": [
+                      "sourceId"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "Scholarship"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "Source"
+                  }
+                }
+              ],
+              "indexes": [
+                {
+                  "columns": [
+                    "closingDate"
+                  ],
+                  "name": "Scholarship_closingDate_idx_a19b9a4e",
+                  "prefix": "Scholarship_closingDate_idx",
+                  "unique": false
+                },
+                {
+                  "columns": [
+                    "confidenceScore"
+                  ],
+                  "name": "Scholarship_confidenceScore_idx_ccca7c3a",
+                  "prefix": "Scholarship_confidenceScore_idx",
+                  "unique": false
+                },
+                {
+                  "columns": [
+                    "sourceId"
+                  ],
+                  "name": "Scholarship_sourceId_idx_d92a2571",
+                  "prefix": "Scholarship_sourceId_idx",
+                  "unique": false
+                },
+                {
+                  "columns": [
+                    "status"
+                  ],
+                  "name": "Scholarship_status_idx_e98638ab",
+                  "prefix": "Scholarship_status_idx",
+                  "unique": false
+                },
+                {
+                  "columns": [
+                    "verificationStatus"
+                  ],
+                  "name": "Scholarship_verificationStatus_idx_d9c050e0",
+                  "prefix": "Scholarship_verificationStatus_idx",
+                  "unique": false
+                }
+              ],
+              "primaryKey": {
+                "columns": [
+                  "id"
+                ]
+              },
+              "uniques": []
+            },
+            "ScholarshipVersion": {
+              "checks": [
+                {
+                  "expression": "\"verificationStatus\" IN ('VERIFIED', 'REVIEW_REQUIRED', 'FAILED')",
+                  "name": "ScholarshipVersion_verificationStatus_check_68091580",
+                  "prefix": "ScholarshipVersion_verificationStatus_check"
+                }
+              ],
+              "columns": {
+                "academicRequirements": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": true
+                },
+                "ageCriteria": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": true
+                },
+                "amount": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": true
+                },
+                "applicationUrl": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": true
+                },
+                "capturedAt": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "default": {
+                    "expression": "now()",
+                    "kind": "function"
+                  },
+                  "nativeType": "timestamptz",
+                  "nullable": false
+                },
+                "categoryCriteria": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": true
+                },
+                "closingDate": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "nativeType": "timestamptz",
+                  "nullable": true
+                },
+                "confidenceScore": {
+                  "codecId": "pg/int4@1",
+                  "nativeType": "int4",
+                  "nullable": false
+                },
+                "contentHash": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": false
+                },
+                "crawlRunId": {
+                  "codecId": "pg/int4@1",
+                  "nativeType": "int4",
+                  "nullable": true
+                },
+                "documentsRequired": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": true
+                },
+                "domicileCriteria": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": true
+                },
+                "educationLevel": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": true
+                },
+                "eligibility": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": true
+                },
+                "genderCriteria": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": true
+                },
+                "id": {
+                  "codecId": "pg/int4@1",
+                  "default": {
+                    "expression": "autoincrement()",
+                    "kind": "function"
+                  },
+                  "nativeType": "int4",
+                  "nullable": false
+                },
+                "incomeCriteria": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": true
+                },
+                "institutionRequirements": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": true
+                },
+                "name": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": false
+                },
+                "officialSourceUrl": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": true
+                },
+                "openingDate": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "nativeType": "timestamptz",
+                  "nullable": true
+                },
+                "provider": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": true
+                },
+                "renewalRequirements": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": true
+                },
+                "scholarshipId": {
+                  "codecId": "pg/int4@1",
+                  "nativeType": "int4",
+                  "nullable": false
+                },
+                "selectionProcess": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": true
+                },
+                "sourceUrl": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": false
+                },
+                "verificationStatus": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": false,
+                  "valueSet": {
+                    "entityKind": "valueSet",
+                    "entityName": "VerificationStatus",
+                    "namespaceId": "public",
+                    "plane": "storage"
+                  }
+                }
+              },
+              "foreignKeys": [
+                {
+                  "source": {
+                    "columns": [
+                      "scholarshipId"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "ScholarshipVersion"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "Scholarship"
+                  }
+                },
+                {
+                  "source": {
+                    "columns": [
+                      "crawlRunId"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "ScholarshipVersion"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "CrawlRun"
+                  }
+                }
+              ],
+              "indexes": [
+                {
+                  "columns": [
+                    "capturedAt"
+                  ],
+                  "name": "ScholarshipVersion_capturedAt_idx_2c071597",
+                  "prefix": "ScholarshipVersion_capturedAt_idx",
+                  "unique": false
+                },
+                {
+                  "columns": [
+                    "contentHash"
+                  ],
+                  "name": "ScholarshipVersion_contentHash_idx_905433f5",
+                  "prefix": "ScholarshipVersion_contentHash_idx",
+                  "unique": false
+                },
+                {
+                  "columns": [
+                    "crawlRunId"
+                  ],
+                  "name": "ScholarshipVersion_crawlRunId_idx_89f782b2",
+                  "prefix": "ScholarshipVersion_crawlRunId_idx",
+                  "unique": false
+                },
+                {
+                  "columns": [
+                    "scholarshipId"
+                  ],
+                  "name": "ScholarshipVersion_scholarshipId_idx_faec57f5",
+                  "prefix": "ScholarshipVersion_scholarshipId_idx",
+                  "unique": false
+                }
+              ],
+              "primaryKey": {
+                "columns": [
+                  "id"
+                ]
+              },
+              "uniques": []
+            },
+            "Source": {
+              "checks": [
+                {
+                  "expression": "\"sourceType\" IN ('GOVERNMENT', 'UNIVERSITY', 'UGC', 'AICTE', 'MINISTRY', 'CSR', 'FOUNDATION', 'TRUST', 'OTHER_OFFICIAL')",
+                  "name": "Source_sourceType_check_a4bc7fd9",
+                  "prefix": "Source_sourceType_check"
+                }
+              ],
+              "columns": {
+                "active": {
+                  "codecId": "pg/bool@1",
+                  "default": {
+                    "kind": "literal",
+                    "value": true
+                  },
+                  "nativeType": "bool",
+                  "nullable": false
+                },
+                "createdAt": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "default": {
+                    "expression": "now()",
+                    "kind": "function"
+                  },
+                  "nativeType": "timestamptz",
+                  "nullable": false
+                },
+                "domain": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": false
+                },
+                "id": {
+                  "codecId": "pg/int4@1",
+                  "default": {
+                    "expression": "autoincrement()",
+                    "kind": "function"
+                  },
+                  "nativeType": "int4",
+                  "nullable": false
+                },
+                "isOfficial": {
+                  "codecId": "pg/bool@1",
+                  "default": {
+                    "kind": "literal",
+                    "value": false
+                  },
+                  "nativeType": "bool",
+                  "nullable": false
+                },
+                "isPrimarySource": {
+                  "codecId": "pg/bool@1",
+                  "default": {
+                    "kind": "literal",
+                    "value": false
+                  },
+                  "nativeType": "bool",
+                  "nullable": false
+                },
+                "lastCrawledAt": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "nativeType": "timestamptz",
+                  "nullable": true
+                },
+                "lastVerifiedAt": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "nativeType": "timestamptz",
+                  "nullable": true
+                },
+                "name": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": false
+                },
+                "sourceType": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": false,
+                  "valueSet": {
+                    "entityKind": "valueSet",
+                    "entityName": "SourceType",
+                    "namespaceId": "public",
+                    "plane": "storage"
+                  }
+                },
+                "updatedAt": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "nativeType": "timestamptz",
+                  "nullable": false
+                },
+                "url": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": false
+                }
+              },
+              "foreignKeys": [],
+              "indexes": [
+                {
+                  "columns": [
+                    "active"
+                  ],
+                  "name": "Source_active_idx_8af4daed",
+                  "prefix": "Source_active_idx",
+                  "unique": false
+                },
+                {
+                  "columns": [
+                    "isOfficial"
+                  ],
+                  "name": "Source_isOfficial_idx_92ccde4a",
+                  "prefix": "Source_isOfficial_idx",
+                  "unique": false
+                },
+                {
+                  "columns": [
+                    "sourceType"
+                  ],
+                  "name": "Source_sourceType_idx_d8b2a801",
+                  "prefix": "Source_sourceType_idx",
+                  "unique": false
+                }
+              ],
+              "primaryKey": {
+                "columns": [
+                  "id"
+                ]
+              },
+              "uniques": [
+                {
+                  "columns": [
+                    "url"
+                  ]
+                }
+              ]
+            }
+          },
+          "valueSet": {
+            "CrawlStatus": {
+              "kind": "valueSet",
+              "values": [
+                "RUNNING",
+                "COMPLETED",
+                "FAILED"
+              ]
+            },
+            "DiscoveryStatus": {
+              "kind": "valueSet",
+              "values": [
+                "DISCOVERED",
+                "QUEUED",
+                "CRAWLED",
+                "PROCESSED",
+                "REJECTED",
+                "FAILED"
+              ]
+            },
+            "EvidenceType": {
+              "kind": "valueSet",
+              "values": [
+                "NAME",
+                "PROVIDER",
+                "AMOUNT",
+                "ELIGIBILITY",
+                "ACADEMIC_REQUIREMENTS",
+                "EDUCATION_LEVEL",
+                "INCOME",
+                "AGE",
+                "GENDER",
+                "CATEGORY",
+                "DOMICILE",
+                "INSTITUTION",
+                "OPENING_DATE",
+                "CLOSING_DATE",
+                "DOCUMENTS",
+                "SELECTION_PROCESS",
+                "RENEWAL",
+                "APPLICATION_URL",
+                "STATUS",
+                "GENERAL"
+              ]
+            },
+            "ScholarshipStatus": {
+              "kind": "valueSet",
+              "values": [
+                "ACTIVE",
+                "EXPIRING_SOON",
+                "EXPIRED",
+                "REVIEW_REQUIRED",
+                "NO_LONGER_VERIFIABLE"
+              ]
+            },
+            "SourceType": {
+              "kind": "valueSet",
+              "values": [
+                "GOVERNMENT",
+                "UNIVERSITY",
+                "UGC",
+                "AICTE",
+                "MINISTRY",
+                "CSR",
+                "FOUNDATION",
+                "TRUST",
+                "OTHER_OFFICIAL"
+              ]
+            },
+            "VerificationStatus": {
+              "kind": "valueSet",
+              "values": [
+                "VERIFIED",
+                "REVIEW_REQUIRED",
+                "FAILED"
+              ]
+            }
+          }
+        },
+        "id": "public",
+        "kind": "postgres-schema"
+      }
+    },
+    "storageHash": "c1bc931056554601f84725bdc3cdc2c5ea5c844807dae0c8f17252d1312936b6"
+  },
+  "execution": {
+    "executionHash": "b586745c293a1731fdf73cd6a184d500d235f3b2caaafbb7e67f8bec3206aec5",
+    "mutations": {
+      "defaults": [
+        {
+          "onCreate": {
+            "id": "timestampNow",
+            "kind": "generator"
+          },
+          "onUpdate": {
+            "id": "timestampNow",
+            "kind": "generator"
+          },
+          "ref": {
+            "entry": "Scholarship",
+            "field": "updatedAt",
+            "namespace": "public"
+          }
+        },
+        {
+          "onCreate": {
+            "id": "timestampNow",
+            "kind": "generator"
+          },
+          "onUpdate": {
+            "id": "timestampNow",
+            "kind": "generator"
+          },
+          "ref": {
+            "entry": "Source",
+            "field": "updatedAt",
+            "namespace": "public"
+          }
+        }
+      ]
+    }
+  },
+  "capabilities": {
+    "postgres": {
+      "distinctOn": true,
+      "jsonAgg": true,
+      "lateral": true,
+      "limit": true,
+      "orderBy": true,
+      "returning": true
+    },
+    "sql": {
+      "checkConstraint": true,
+      "defaultInInsert": true,
+      "enums": true,
+      "insertOnConflictSkip": true,
+      "insertOnConflictWithoutTarget": true,
+      "lateral": true,
+      "returning": true,
+      "scalarList": true
+    }
+  },
+  "extensions": {},
+  "meta": {},
+  "_generated": {
+    "warning": "⚠️  GENERATED FILE - DO NOT EDIT",
+    "message": "This file is automatically generated by \"prisma contract emit\".",
+    "regenerate": "To regenerate, run: prisma contract emit"
+  }
+}

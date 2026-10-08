@@ -1,0 +1,446 @@
+[
+  {
+    "id": "table.ContentSnapshot",
+    "label": "Create table \"ContentSnapshot\"",
+    "summary": "Creates table \"ContentSnapshot\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "ContentSnapshot"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"ContentSnapshot\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"ContentSnapshot\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"ContentSnapshot\"",
+        "sql": "CREATE TABLE \"public\".\"ContentSnapshot\" (\n  \"contentHash\" text,\n  \"crawlRunId\" int4 NOT NULL,\n  \"discoveredUrlId\" int4 NOT NULL,\n  \"errorMessage\" text,\n  \"extractedText\" text,\n  \"finalUrl\" text NOT NULL,\n  \"httpStatus\" int4,\n  \"id\" SERIAL NOT NULL,\n  \"requestedUrl\" text NOT NULL,\n  \"retrievedAt\" timestamptz DEFAULT (now()) NOT NULL,\n  PRIMARY KEY (\"id\")\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"ContentSnapshot\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"ContentSnapshot\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "column.public.DiscoveredUrl.crawlRunId",
+    "label": "Add column \"crawlRunId\" to \"DiscoveredUrl\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "crawlRunId",
+        "table": "DiscoveredUrl"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure column \"crawlRunId\" is missing",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "DiscoveredUrl",
+          "crawlRunId"
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add column \"crawlRunId\"",
+        "sql": "ALTER TABLE \"public\".\"DiscoveredUrl\" ADD COLUMN \"crawlRunId\" int4"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"crawlRunId\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "DiscoveredUrl",
+          "crawlRunId"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "unique.DiscoveredUrl.DiscoveredUrl_normalizedUrl_key",
+    "label": "Add unique constraint on \"DiscoveredUrl\" (normalizedUrl)",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "unique",
+        "name": "DiscoveredUrl_normalizedUrl_key",
+        "table": "DiscoveredUrl"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"DiscoveredUrl_normalizedUrl_key\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "DiscoveredUrl_normalizedUrl_key",
+          "public",
+          "\"public\".\"DiscoveredUrl\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add unique constraint \"DiscoveredUrl_normalizedUrl_key\"",
+        "sql": "ALTER TABLE \"public\".\"DiscoveredUrl\" ADD CONSTRAINT \"DiscoveredUrl_normalizedUrl_key\" UNIQUE (\"normalizedUrl\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify constraint \"DiscoveredUrl_normalizedUrl_key\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "DiscoveredUrl_normalizedUrl_key",
+          "public",
+          "\"public\".\"DiscoveredUrl\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.ContentSnapshot.ContentSnapshot_contentHash_idx_905433f5",
+    "label": "Create index \"ContentSnapshot_contentHash_idx_905433f5\" on \"ContentSnapshot\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "ContentSnapshot_contentHash_idx_905433f5",
+        "table": "ContentSnapshot"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"ContentSnapshot_contentHash_idx_905433f5\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"ContentSnapshot_contentHash_idx_905433f5\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"ContentSnapshot_contentHash_idx_905433f5\"",
+        "sql": "CREATE INDEX \"ContentSnapshot_contentHash_idx_905433f5\" ON \"public\".\"ContentSnapshot\" (\"contentHash\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"ContentSnapshot_contentHash_idx_905433f5\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"ContentSnapshot_contentHash_idx_905433f5\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.ContentSnapshot.ContentSnapshot_crawlRunId_idx_89f782b2",
+    "label": "Create index \"ContentSnapshot_crawlRunId_idx_89f782b2\" on \"ContentSnapshot\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "ContentSnapshot_crawlRunId_idx_89f782b2",
+        "table": "ContentSnapshot"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"ContentSnapshot_crawlRunId_idx_89f782b2\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"ContentSnapshot_crawlRunId_idx_89f782b2\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"ContentSnapshot_crawlRunId_idx_89f782b2\"",
+        "sql": "CREATE INDEX \"ContentSnapshot_crawlRunId_idx_89f782b2\" ON \"public\".\"ContentSnapshot\" (\"crawlRunId\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"ContentSnapshot_crawlRunId_idx_89f782b2\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"ContentSnapshot_crawlRunId_idx_89f782b2\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.ContentSnapshot.ContentSnapshot_discoveredUrlId_idx_5064c4a3",
+    "label": "Create index \"ContentSnapshot_discoveredUrlId_idx_5064c4a3\" on \"ContentSnapshot\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "ContentSnapshot_discoveredUrlId_idx_5064c4a3",
+        "table": "ContentSnapshot"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"ContentSnapshot_discoveredUrlId_idx_5064c4a3\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"ContentSnapshot_discoveredUrlId_idx_5064c4a3\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"ContentSnapshot_discoveredUrlId_idx_5064c4a3\"",
+        "sql": "CREATE INDEX \"ContentSnapshot_discoveredUrlId_idx_5064c4a3\" ON \"public\".\"ContentSnapshot\" (\"discoveredUrlId\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"ContentSnapshot_discoveredUrlId_idx_5064c4a3\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"ContentSnapshot_discoveredUrlId_idx_5064c4a3\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.ContentSnapshot.ContentSnapshot_retrievedAt_idx_1eeb9ecf",
+    "label": "Create index \"ContentSnapshot_retrievedAt_idx_1eeb9ecf\" on \"ContentSnapshot\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "ContentSnapshot_retrievedAt_idx_1eeb9ecf",
+        "table": "ContentSnapshot"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"ContentSnapshot_retrievedAt_idx_1eeb9ecf\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"ContentSnapshot_retrievedAt_idx_1eeb9ecf\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"ContentSnapshot_retrievedAt_idx_1eeb9ecf\"",
+        "sql": "CREATE INDEX \"ContentSnapshot_retrievedAt_idx_1eeb9ecf\" ON \"public\".\"ContentSnapshot\" (\"retrievedAt\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"ContentSnapshot_retrievedAt_idx_1eeb9ecf\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"ContentSnapshot_retrievedAt_idx_1eeb9ecf\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.DiscoveredUrl.DiscoveredUrl_crawlRunId_idx_89f782b2",
+    "label": "Create index \"DiscoveredUrl_crawlRunId_idx_89f782b2\" on \"DiscoveredUrl\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "DiscoveredUrl_crawlRunId_idx_89f782b2",
+        "table": "DiscoveredUrl"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"DiscoveredUrl_crawlRunId_idx_89f782b2\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"DiscoveredUrl_crawlRunId_idx_89f782b2\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"DiscoveredUrl_crawlRunId_idx_89f782b2\"",
+        "sql": "CREATE INDEX \"DiscoveredUrl_crawlRunId_idx_89f782b2\" ON \"public\".\"DiscoveredUrl\" (\"crawlRunId\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"DiscoveredUrl_crawlRunId_idx_89f782b2\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"DiscoveredUrl_crawlRunId_idx_89f782b2\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.ContentSnapshot.ContentSnapshot_discoveredUrlId_fkey",
+    "label": "Add foreign key \"ContentSnapshot_discoveredUrlId_fkey\" on \"ContentSnapshot\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "ContentSnapshot_discoveredUrlId_fkey",
+        "table": "ContentSnapshot"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"ContentSnapshot_discoveredUrlId_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "ContentSnapshot_discoveredUrlId_fkey",
+          "public",
+          "\"public\".\"ContentSnapshot\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"ContentSnapshot_discoveredUrlId_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"ContentSnapshot\"\nADD CONSTRAINT \"ContentSnapshot_discoveredUrlId_fkey\"\nFOREIGN KEY (\"discoveredUrlId\")\nREFERENCES \"public\".\"DiscoveredUrl\" (\"id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"ContentSnapshot_discoveredUrlId_fkey\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "ContentSnapshot_discoveredUrlId_fkey",
+          "public",
+          "\"public\".\"ContentSnapshot\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.ContentSnapshot.ContentSnapshot_crawlRunId_fkey",
+    "label": "Add foreign key \"ContentSnapshot_crawlRunId_fkey\" on \"ContentSnapshot\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "ContentSnapshot_crawlRunId_fkey",
+        "table": "ContentSnapshot"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"ContentSnapshot_crawlRunId_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "ContentSnapshot_crawlRunId_fkey",
+          "public",
+          "\"public\".\"ContentSnapshot\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"ContentSnapshot_crawlRunId_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"ContentSnapshot\"\nADD CONSTRAINT \"ContentSnapshot_crawlRunId_fkey\"\nFOREIGN KEY (\"crawlRunId\")\nREFERENCES \"public\".\"CrawlRun\" (\"id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"ContentSnapshot_crawlRunId_fkey\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "ContentSnapshot_crawlRunId_fkey",
+          "public",
+          "\"public\".\"ContentSnapshot\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.DiscoveredUrl.DiscoveredUrl_crawlRunId_fkey",
+    "label": "Add foreign key \"DiscoveredUrl_crawlRunId_fkey\" on \"DiscoveredUrl\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "DiscoveredUrl_crawlRunId_fkey",
+        "table": "DiscoveredUrl"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"DiscoveredUrl_crawlRunId_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "DiscoveredUrl_crawlRunId_fkey",
+          "public",
+          "\"public\".\"DiscoveredUrl\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"DiscoveredUrl_crawlRunId_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"DiscoveredUrl\"\nADD CONSTRAINT \"DiscoveredUrl_crawlRunId_fkey\"\nFOREIGN KEY (\"crawlRunId\")\nREFERENCES \"public\".\"CrawlRun\" (\"id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"DiscoveredUrl_crawlRunId_fkey\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "DiscoveredUrl_crawlRunId_fkey",
+          "public",
+          "\"public\".\"DiscoveredUrl\""
+        ]
+      }
+    ]
+  }
+]

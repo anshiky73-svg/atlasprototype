@@ -1,0 +1,1768 @@
+[
+  {
+    "id": "schema.public",
+    "label": "Create schema \"public\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres"
+    },
+    "precheck": [],
+    "execute": [
+      {
+        "description": "Create schema \"public\"",
+        "sql": "CREATE SCHEMA IF NOT EXISTS \"public\"",
+        "params": []
+      }
+    ],
+    "postcheck": []
+  },
+  {
+    "id": "table.ChangeEvent",
+    "label": "Create table \"ChangeEvent\"",
+    "summary": "Creates table \"ChangeEvent\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "ChangeEvent"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"ChangeEvent\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"ChangeEvent\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"ChangeEvent\"",
+        "sql": "CREATE TABLE \"public\".\"ChangeEvent\" (\n  \"crawlRunId\" int4,\n  \"detectedAt\" timestamptz DEFAULT (now()) NOT NULL,\n  \"evidenceText\" text,\n  \"fieldName\" text NOT NULL,\n  \"id\" SERIAL NOT NULL,\n  \"newValue\" text,\n  \"oldValue\" text,\n  \"scholarshipId\" int4 NOT NULL,\n  \"sourceUrl\" text NOT NULL,\n  PRIMARY KEY (\"id\")\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"ChangeEvent\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"ChangeEvent\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "table.CrawlRun",
+    "label": "Create table \"CrawlRun\"",
+    "summary": "Creates table \"CrawlRun\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "CrawlRun"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"CrawlRun\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"CrawlRun\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"CrawlRun\"",
+        "sql": "CREATE TABLE \"public\".\"CrawlRun\" (\n  \"completedAt\" timestamptz,\n  \"crawledCount\" int4 DEFAULT 0 NOT NULL,\n  \"createdAt\" timestamptz DEFAULT (now()) NOT NULL,\n  \"discoveredCount\" int4 DEFAULT 0 NOT NULL,\n  \"errorMessage\" text,\n  \"expiredCount\" int4 DEFAULT 0 NOT NULL,\n  \"extractedCount\" int4 DEFAULT 0 NOT NULL,\n  \"failedCount\" int4 DEFAULT 0 NOT NULL,\n  \"id\" SERIAL NOT NULL,\n  \"newScholarshipCount\" int4 DEFAULT 0 NOT NULL,\n  \"reviewRequiredCount\" int4 DEFAULT 0 NOT NULL,\n  \"startedAt\" timestamptz DEFAULT (now()) NOT NULL,\n  \"status\" text DEFAULT 'RUNNING' NOT NULL,\n  \"updatedScholarshipCount\" int4 DEFAULT 0 NOT NULL,\n  \"verifiedCount\" int4 DEFAULT 0 NOT NULL,\n  PRIMARY KEY (\"id\"),\n  CONSTRAINT \"CrawlRun_status_check_a1d46110\" CHECK (\"status\" IN ('RUNNING', 'COMPLETED', 'FAILED'))\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"CrawlRun\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"CrawlRun\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "table.DiscoveredUrl",
+    "label": "Create table \"DiscoveredUrl\"",
+    "summary": "Creates table \"DiscoveredUrl\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "DiscoveredUrl"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"DiscoveredUrl\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"DiscoveredUrl\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"DiscoveredUrl\"",
+        "sql": "CREATE TABLE \"public\".\"DiscoveredUrl\" (\n  \"contentHash\" text,\n  \"crawledAt\" timestamptz,\n  \"discoveredFromUrl\" text,\n  \"discoveryMethod\" text,\n  \"domain\" text NOT NULL,\n  \"errorMessage\" text,\n  \"firstDiscoveredAt\" timestamptz DEFAULT (now()) NOT NULL,\n  \"httpStatus\" int4,\n  \"id\" SERIAL NOT NULL,\n  \"lastSeenAt\" timestamptz,\n  \"normalizedUrl\" text,\n  \"sourceId\" int4,\n  \"status\" text DEFAULT 'DISCOVERED' NOT NULL,\n  \"url\" text NOT NULL,\n  PRIMARY KEY (\"id\"),\n  CONSTRAINT \"DiscoveredUrl_status_check_e74133dd\" CHECK (\"status\" IN ('DISCOVERED', 'QUEUED', 'CRAWLED', 'PROCESSED', 'REJECTED', 'FAILED'))\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"DiscoveredUrl\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"DiscoveredUrl\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "table.Evidence",
+    "label": "Create table \"Evidence\"",
+    "summary": "Creates table \"Evidence\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "Evidence"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"Evidence\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"Evidence\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"Evidence\"",
+        "sql": "CREATE TABLE \"public\".\"Evidence\" (\n  \"contentHash\" text,\n  \"crawlRunId\" int4,\n  \"createdAt\" timestamptz DEFAULT (now()) NOT NULL,\n  \"evidenceText\" text NOT NULL,\n  \"extractedValue\" text,\n  \"fieldName\" text NOT NULL,\n  \"id\" SERIAL NOT NULL,\n  \"isOfficialSource\" bool DEFAULT false NOT NULL,\n  \"retrievedAt\" timestamptz DEFAULT (now()) NOT NULL,\n  \"scholarshipId\" int4 NOT NULL,\n  \"sourceId\" int4,\n  \"sourceUrl\" text NOT NULL,\n  \"supportsClaim\" bool DEFAULT true NOT NULL,\n  PRIMARY KEY (\"id\"),\n  CONSTRAINT \"Evidence_fieldName_check_a565aeb1\" CHECK (\"fieldName\" IN ('NAME', 'PROVIDER', 'AMOUNT', 'ELIGIBILITY', 'ACADEMIC_REQUIREMENTS', 'EDUCATION_LEVEL', 'INCOME', 'AGE', 'GENDER', 'CATEGORY', 'DOMICILE', 'INSTITUTION', 'OPENING_DATE', 'CLOSING_DATE', 'DOCUMENTS', 'SELECTION_PROCESS', 'RENEWAL', 'APPLICATION_URL', 'STATUS', 'GENERAL'))\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"Evidence\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"Evidence\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "table.Scholarship",
+    "label": "Create table \"Scholarship\"",
+    "summary": "Creates table \"Scholarship\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "Scholarship"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"Scholarship\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"Scholarship\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"Scholarship\"",
+        "sql": "CREATE TABLE \"public\".\"Scholarship\" (\n  \"academicRequirements\" text,\n  \"ageCriteria\" text,\n  \"amount\" text,\n  \"applicationUrl\" text,\n  \"categoryCriteria\" text,\n  \"closingDate\" timestamptz,\n  \"confidenceBreakdown\" text,\n  \"confidenceScore\" int4 DEFAULT 0 NOT NULL,\n  \"createdAt\" timestamptz DEFAULT (now()) NOT NULL,\n  \"currentContentHash\" text,\n  \"documentsRequired\" text,\n  \"domicileCriteria\" text,\n  \"educationLevel\" text,\n  \"eligibility\" text,\n  \"genderCriteria\" text,\n  \"id\" SERIAL NOT NULL,\n  \"incomeCriteria\" text,\n  \"institutionRequirements\" text,\n  \"lastCrawledAt\" timestamptz,\n  \"lastEvidenceHash\" text,\n  \"lastVerifiedAt\" timestamptz,\n  \"name\" text NOT NULL,\n  \"officialSourceUrl\" text NOT NULL,\n  \"openingDate\" timestamptz,\n  \"provider\" text,\n  \"renewalRequirements\" text,\n  \"selectionProcess\" text,\n  \"sourceId\" int4,\n  \"sourceType\" text NOT NULL,\n  \"status\" text DEFAULT 'REVIEW_REQUIRED' NOT NULL,\n  \"updatedAt\" timestamptz NOT NULL,\n  \"verificationStatus\" text DEFAULT 'REVIEW_REQUIRED' NOT NULL,\n  PRIMARY KEY (\"id\"),\n  CONSTRAINT \"Scholarship_sourceType_check_a4bc7fd9\" CHECK (\"sourceType\" IN ('GOVERNMENT', 'UNIVERSITY', 'UGC', 'AICTE', 'MINISTRY', 'CSR', 'FOUNDATION', 'TRUST', 'OTHER_OFFICIAL')),\n  CONSTRAINT \"Scholarship_status_check_5795556c\" CHECK (\"status\" IN ('ACTIVE', 'EXPIRING_SOON', 'EXPIRED', 'REVIEW_REQUIRED', 'NO_LONGER_VERIFIABLE')),\n  CONSTRAINT \"Scholarship_verificationStatus_check_68091580\" CHECK (\"verificationStatus\" IN ('VERIFIED', 'REVIEW_REQUIRED', 'FAILED'))\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"Scholarship\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"Scholarship\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "table.ScholarshipVersion",
+    "label": "Create table \"ScholarshipVersion\"",
+    "summary": "Creates table \"ScholarshipVersion\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "ScholarshipVersion"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"ScholarshipVersion\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"ScholarshipVersion\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"ScholarshipVersion\"",
+        "sql": "CREATE TABLE \"public\".\"ScholarshipVersion\" (\n  \"academicRequirements\" text,\n  \"ageCriteria\" text,\n  \"amount\" text,\n  \"applicationUrl\" text,\n  \"capturedAt\" timestamptz DEFAULT (now()) NOT NULL,\n  \"categoryCriteria\" text,\n  \"closingDate\" timestamptz,\n  \"confidenceScore\" int4 NOT NULL,\n  \"contentHash\" text NOT NULL,\n  \"crawlRunId\" int4,\n  \"documentsRequired\" text,\n  \"domicileCriteria\" text,\n  \"educationLevel\" text,\n  \"eligibility\" text,\n  \"genderCriteria\" text,\n  \"id\" SERIAL NOT NULL,\n  \"incomeCriteria\" text,\n  \"institutionRequirements\" text,\n  \"name\" text NOT NULL,\n  \"officialSourceUrl\" text,\n  \"openingDate\" timestamptz,\n  \"provider\" text,\n  \"renewalRequirements\" text,\n  \"scholarshipId\" int4 NOT NULL,\n  \"selectionProcess\" text,\n  \"sourceUrl\" text NOT NULL,\n  \"verificationStatus\" text NOT NULL,\n  PRIMARY KEY (\"id\"),\n  CONSTRAINT \"ScholarshipVersion_verificationStatus_check_68091580\" CHECK (\"verificationStatus\" IN ('VERIFIED', 'REVIEW_REQUIRED', 'FAILED'))\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"ScholarshipVersion\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"ScholarshipVersion\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "table.Source",
+    "label": "Create table \"Source\"",
+    "summary": "Creates table \"Source\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "Source"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"Source\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"Source\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"Source\"",
+        "sql": "CREATE TABLE \"public\".\"Source\" (\n  \"active\" bool DEFAULT true NOT NULL,\n  \"createdAt\" timestamptz DEFAULT (now()) NOT NULL,\n  \"domain\" text NOT NULL,\n  \"id\" SERIAL NOT NULL,\n  \"isOfficial\" bool DEFAULT false NOT NULL,\n  \"isPrimarySource\" bool DEFAULT false NOT NULL,\n  \"lastCrawledAt\" timestamptz,\n  \"lastVerifiedAt\" timestamptz,\n  \"name\" text NOT NULL,\n  \"sourceType\" text NOT NULL,\n  \"updatedAt\" timestamptz NOT NULL,\n  \"url\" text NOT NULL,\n  PRIMARY KEY (\"id\"),\n  CONSTRAINT \"Source_sourceType_check_a4bc7fd9\" CHECK (\"sourceType\" IN ('GOVERNMENT', 'UNIVERSITY', 'UGC', 'AICTE', 'MINISTRY', 'CSR', 'FOUNDATION', 'TRUST', 'OTHER_OFFICIAL'))\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"Source\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"Source\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "unique.DiscoveredUrl.DiscoveredUrl_url_key",
+    "label": "Add unique constraint on \"DiscoveredUrl\" (url)",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "unique",
+        "name": "DiscoveredUrl_url_key",
+        "table": "DiscoveredUrl"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"DiscoveredUrl_url_key\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "DiscoveredUrl_url_key",
+          "public",
+          "\"public\".\"DiscoveredUrl\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add unique constraint \"DiscoveredUrl_url_key\"",
+        "sql": "ALTER TABLE \"public\".\"DiscoveredUrl\" ADD CONSTRAINT \"DiscoveredUrl_url_key\" UNIQUE (\"url\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify constraint \"DiscoveredUrl_url_key\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "DiscoveredUrl_url_key",
+          "public",
+          "\"public\".\"DiscoveredUrl\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "unique.Source.Source_url_key",
+    "label": "Add unique constraint on \"Source\" (url)",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "unique",
+        "name": "Source_url_key",
+        "table": "Source"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"Source_url_key\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "Source_url_key",
+          "public",
+          "\"public\".\"Source\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add unique constraint \"Source_url_key\"",
+        "sql": "ALTER TABLE \"public\".\"Source\" ADD CONSTRAINT \"Source_url_key\" UNIQUE (\"url\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify constraint \"Source_url_key\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "Source_url_key",
+          "public",
+          "\"public\".\"Source\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.ChangeEvent.ChangeEvent_crawlRunId_idx_89f782b2",
+    "label": "Create index \"ChangeEvent_crawlRunId_idx_89f782b2\" on \"ChangeEvent\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "ChangeEvent_crawlRunId_idx_89f782b2",
+        "table": "ChangeEvent"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"ChangeEvent_crawlRunId_idx_89f782b2\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"ChangeEvent_crawlRunId_idx_89f782b2\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"ChangeEvent_crawlRunId_idx_89f782b2\"",
+        "sql": "CREATE INDEX \"ChangeEvent_crawlRunId_idx_89f782b2\" ON \"public\".\"ChangeEvent\" (\"crawlRunId\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"ChangeEvent_crawlRunId_idx_89f782b2\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"ChangeEvent_crawlRunId_idx_89f782b2\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.ChangeEvent.ChangeEvent_detectedAt_idx_7415771a",
+    "label": "Create index \"ChangeEvent_detectedAt_idx_7415771a\" on \"ChangeEvent\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "ChangeEvent_detectedAt_idx_7415771a",
+        "table": "ChangeEvent"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"ChangeEvent_detectedAt_idx_7415771a\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"ChangeEvent_detectedAt_idx_7415771a\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"ChangeEvent_detectedAt_idx_7415771a\"",
+        "sql": "CREATE INDEX \"ChangeEvent_detectedAt_idx_7415771a\" ON \"public\".\"ChangeEvent\" (\"detectedAt\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"ChangeEvent_detectedAt_idx_7415771a\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"ChangeEvent_detectedAt_idx_7415771a\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.ChangeEvent.ChangeEvent_fieldName_idx_f1c1a56f",
+    "label": "Create index \"ChangeEvent_fieldName_idx_f1c1a56f\" on \"ChangeEvent\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "ChangeEvent_fieldName_idx_f1c1a56f",
+        "table": "ChangeEvent"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"ChangeEvent_fieldName_idx_f1c1a56f\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"ChangeEvent_fieldName_idx_f1c1a56f\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"ChangeEvent_fieldName_idx_f1c1a56f\"",
+        "sql": "CREATE INDEX \"ChangeEvent_fieldName_idx_f1c1a56f\" ON \"public\".\"ChangeEvent\" (\"fieldName\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"ChangeEvent_fieldName_idx_f1c1a56f\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"ChangeEvent_fieldName_idx_f1c1a56f\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.ChangeEvent.ChangeEvent_scholarshipId_idx_faec57f5",
+    "label": "Create index \"ChangeEvent_scholarshipId_idx_faec57f5\" on \"ChangeEvent\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "ChangeEvent_scholarshipId_idx_faec57f5",
+        "table": "ChangeEvent"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"ChangeEvent_scholarshipId_idx_faec57f5\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"ChangeEvent_scholarshipId_idx_faec57f5\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"ChangeEvent_scholarshipId_idx_faec57f5\"",
+        "sql": "CREATE INDEX \"ChangeEvent_scholarshipId_idx_faec57f5\" ON \"public\".\"ChangeEvent\" (\"scholarshipId\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"ChangeEvent_scholarshipId_idx_faec57f5\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"ChangeEvent_scholarshipId_idx_faec57f5\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.CrawlRun.CrawlRun_startedAt_idx_cac56236",
+    "label": "Create index \"CrawlRun_startedAt_idx_cac56236\" on \"CrawlRun\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "CrawlRun_startedAt_idx_cac56236",
+        "table": "CrawlRun"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"CrawlRun_startedAt_idx_cac56236\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"CrawlRun_startedAt_idx_cac56236\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"CrawlRun_startedAt_idx_cac56236\"",
+        "sql": "CREATE INDEX \"CrawlRun_startedAt_idx_cac56236\" ON \"public\".\"CrawlRun\" (\"startedAt\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"CrawlRun_startedAt_idx_cac56236\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"CrawlRun_startedAt_idx_cac56236\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.CrawlRun.CrawlRun_status_idx_e98638ab",
+    "label": "Create index \"CrawlRun_status_idx_e98638ab\" on \"CrawlRun\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "CrawlRun_status_idx_e98638ab",
+        "table": "CrawlRun"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"CrawlRun_status_idx_e98638ab\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"CrawlRun_status_idx_e98638ab\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"CrawlRun_status_idx_e98638ab\"",
+        "sql": "CREATE INDEX \"CrawlRun_status_idx_e98638ab\" ON \"public\".\"CrawlRun\" (\"status\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"CrawlRun_status_idx_e98638ab\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"CrawlRun_status_idx_e98638ab\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.DiscoveredUrl.DiscoveredUrl_domain_idx_bc50540b",
+    "label": "Create index \"DiscoveredUrl_domain_idx_bc50540b\" on \"DiscoveredUrl\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "DiscoveredUrl_domain_idx_bc50540b",
+        "table": "DiscoveredUrl"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"DiscoveredUrl_domain_idx_bc50540b\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"DiscoveredUrl_domain_idx_bc50540b\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"DiscoveredUrl_domain_idx_bc50540b\"",
+        "sql": "CREATE INDEX \"DiscoveredUrl_domain_idx_bc50540b\" ON \"public\".\"DiscoveredUrl\" (\"domain\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"DiscoveredUrl_domain_idx_bc50540b\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"DiscoveredUrl_domain_idx_bc50540b\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.DiscoveredUrl.DiscoveredUrl_sourceId_idx_d92a2571",
+    "label": "Create index \"DiscoveredUrl_sourceId_idx_d92a2571\" on \"DiscoveredUrl\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "DiscoveredUrl_sourceId_idx_d92a2571",
+        "table": "DiscoveredUrl"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"DiscoveredUrl_sourceId_idx_d92a2571\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"DiscoveredUrl_sourceId_idx_d92a2571\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"DiscoveredUrl_sourceId_idx_d92a2571\"",
+        "sql": "CREATE INDEX \"DiscoveredUrl_sourceId_idx_d92a2571\" ON \"public\".\"DiscoveredUrl\" (\"sourceId\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"DiscoveredUrl_sourceId_idx_d92a2571\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"DiscoveredUrl_sourceId_idx_d92a2571\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.DiscoveredUrl.DiscoveredUrl_status_idx_e98638ab",
+    "label": "Create index \"DiscoveredUrl_status_idx_e98638ab\" on \"DiscoveredUrl\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "DiscoveredUrl_status_idx_e98638ab",
+        "table": "DiscoveredUrl"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"DiscoveredUrl_status_idx_e98638ab\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"DiscoveredUrl_status_idx_e98638ab\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"DiscoveredUrl_status_idx_e98638ab\"",
+        "sql": "CREATE INDEX \"DiscoveredUrl_status_idx_e98638ab\" ON \"public\".\"DiscoveredUrl\" (\"status\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"DiscoveredUrl_status_idx_e98638ab\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"DiscoveredUrl_status_idx_e98638ab\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.Evidence.Evidence_contentHash_idx_905433f5",
+    "label": "Create index \"Evidence_contentHash_idx_905433f5\" on \"Evidence\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "Evidence_contentHash_idx_905433f5",
+        "table": "Evidence"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"Evidence_contentHash_idx_905433f5\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"Evidence_contentHash_idx_905433f5\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"Evidence_contentHash_idx_905433f5\"",
+        "sql": "CREATE INDEX \"Evidence_contentHash_idx_905433f5\" ON \"public\".\"Evidence\" (\"contentHash\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"Evidence_contentHash_idx_905433f5\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"Evidence_contentHash_idx_905433f5\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.Evidence.Evidence_crawlRunId_idx_89f782b2",
+    "label": "Create index \"Evidence_crawlRunId_idx_89f782b2\" on \"Evidence\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "Evidence_crawlRunId_idx_89f782b2",
+        "table": "Evidence"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"Evidence_crawlRunId_idx_89f782b2\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"Evidence_crawlRunId_idx_89f782b2\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"Evidence_crawlRunId_idx_89f782b2\"",
+        "sql": "CREATE INDEX \"Evidence_crawlRunId_idx_89f782b2\" ON \"public\".\"Evidence\" (\"crawlRunId\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"Evidence_crawlRunId_idx_89f782b2\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"Evidence_crawlRunId_idx_89f782b2\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.Evidence.Evidence_fieldName_idx_f1c1a56f",
+    "label": "Create index \"Evidence_fieldName_idx_f1c1a56f\" on \"Evidence\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "Evidence_fieldName_idx_f1c1a56f",
+        "table": "Evidence"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"Evidence_fieldName_idx_f1c1a56f\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"Evidence_fieldName_idx_f1c1a56f\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"Evidence_fieldName_idx_f1c1a56f\"",
+        "sql": "CREATE INDEX \"Evidence_fieldName_idx_f1c1a56f\" ON \"public\".\"Evidence\" (\"fieldName\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"Evidence_fieldName_idx_f1c1a56f\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"Evidence_fieldName_idx_f1c1a56f\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.Evidence.Evidence_scholarshipId_idx_faec57f5",
+    "label": "Create index \"Evidence_scholarshipId_idx_faec57f5\" on \"Evidence\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "Evidence_scholarshipId_idx_faec57f5",
+        "table": "Evidence"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"Evidence_scholarshipId_idx_faec57f5\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"Evidence_scholarshipId_idx_faec57f5\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"Evidence_scholarshipId_idx_faec57f5\"",
+        "sql": "CREATE INDEX \"Evidence_scholarshipId_idx_faec57f5\" ON \"public\".\"Evidence\" (\"scholarshipId\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"Evidence_scholarshipId_idx_faec57f5\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"Evidence_scholarshipId_idx_faec57f5\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.Evidence.Evidence_sourceId_idx_d92a2571",
+    "label": "Create index \"Evidence_sourceId_idx_d92a2571\" on \"Evidence\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "Evidence_sourceId_idx_d92a2571",
+        "table": "Evidence"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"Evidence_sourceId_idx_d92a2571\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"Evidence_sourceId_idx_d92a2571\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"Evidence_sourceId_idx_d92a2571\"",
+        "sql": "CREATE INDEX \"Evidence_sourceId_idx_d92a2571\" ON \"public\".\"Evidence\" (\"sourceId\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"Evidence_sourceId_idx_d92a2571\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"Evidence_sourceId_idx_d92a2571\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.Scholarship.Scholarship_closingDate_idx_a19b9a4e",
+    "label": "Create index \"Scholarship_closingDate_idx_a19b9a4e\" on \"Scholarship\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "Scholarship_closingDate_idx_a19b9a4e",
+        "table": "Scholarship"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"Scholarship_closingDate_idx_a19b9a4e\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"Scholarship_closingDate_idx_a19b9a4e\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"Scholarship_closingDate_idx_a19b9a4e\"",
+        "sql": "CREATE INDEX \"Scholarship_closingDate_idx_a19b9a4e\" ON \"public\".\"Scholarship\" (\"closingDate\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"Scholarship_closingDate_idx_a19b9a4e\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"Scholarship_closingDate_idx_a19b9a4e\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.Scholarship.Scholarship_confidenceScore_idx_ccca7c3a",
+    "label": "Create index \"Scholarship_confidenceScore_idx_ccca7c3a\" on \"Scholarship\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "Scholarship_confidenceScore_idx_ccca7c3a",
+        "table": "Scholarship"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"Scholarship_confidenceScore_idx_ccca7c3a\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"Scholarship_confidenceScore_idx_ccca7c3a\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"Scholarship_confidenceScore_idx_ccca7c3a\"",
+        "sql": "CREATE INDEX \"Scholarship_confidenceScore_idx_ccca7c3a\" ON \"public\".\"Scholarship\" (\"confidenceScore\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"Scholarship_confidenceScore_idx_ccca7c3a\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"Scholarship_confidenceScore_idx_ccca7c3a\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.Scholarship.Scholarship_sourceId_idx_d92a2571",
+    "label": "Create index \"Scholarship_sourceId_idx_d92a2571\" on \"Scholarship\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "Scholarship_sourceId_idx_d92a2571",
+        "table": "Scholarship"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"Scholarship_sourceId_idx_d92a2571\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"Scholarship_sourceId_idx_d92a2571\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"Scholarship_sourceId_idx_d92a2571\"",
+        "sql": "CREATE INDEX \"Scholarship_sourceId_idx_d92a2571\" ON \"public\".\"Scholarship\" (\"sourceId\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"Scholarship_sourceId_idx_d92a2571\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"Scholarship_sourceId_idx_d92a2571\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.Scholarship.Scholarship_status_idx_e98638ab",
+    "label": "Create index \"Scholarship_status_idx_e98638ab\" on \"Scholarship\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "Scholarship_status_idx_e98638ab",
+        "table": "Scholarship"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"Scholarship_status_idx_e98638ab\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"Scholarship_status_idx_e98638ab\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"Scholarship_status_idx_e98638ab\"",
+        "sql": "CREATE INDEX \"Scholarship_status_idx_e98638ab\" ON \"public\".\"Scholarship\" (\"status\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"Scholarship_status_idx_e98638ab\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"Scholarship_status_idx_e98638ab\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.Scholarship.Scholarship_verificationStatus_idx_d9c050e0",
+    "label": "Create index \"Scholarship_verificationStatus_idx_d9c050e0\" on \"Scholarship\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "Scholarship_verificationStatus_idx_d9c050e0",
+        "table": "Scholarship"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"Scholarship_verificationStatus_idx_d9c050e0\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"Scholarship_verificationStatus_idx_d9c050e0\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"Scholarship_verificationStatus_idx_d9c050e0\"",
+        "sql": "CREATE INDEX \"Scholarship_verificationStatus_idx_d9c050e0\" ON \"public\".\"Scholarship\" (\"verificationStatus\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"Scholarship_verificationStatus_idx_d9c050e0\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"Scholarship_verificationStatus_idx_d9c050e0\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.ScholarshipVersion.ScholarshipVersion_capturedAt_idx_2c071597",
+    "label": "Create index \"ScholarshipVersion_capturedAt_idx_2c071597\" on \"ScholarshipVersion\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "ScholarshipVersion_capturedAt_idx_2c071597",
+        "table": "ScholarshipVersion"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"ScholarshipVersion_capturedAt_idx_2c071597\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"ScholarshipVersion_capturedAt_idx_2c071597\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"ScholarshipVersion_capturedAt_idx_2c071597\"",
+        "sql": "CREATE INDEX \"ScholarshipVersion_capturedAt_idx_2c071597\" ON \"public\".\"ScholarshipVersion\" (\"capturedAt\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"ScholarshipVersion_capturedAt_idx_2c071597\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"ScholarshipVersion_capturedAt_idx_2c071597\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.ScholarshipVersion.ScholarshipVersion_contentHash_idx_905433f5",
+    "label": "Create index \"ScholarshipVersion_contentHash_idx_905433f5\" on \"ScholarshipVersion\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "ScholarshipVersion_contentHash_idx_905433f5",
+        "table": "ScholarshipVersion"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"ScholarshipVersion_contentHash_idx_905433f5\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"ScholarshipVersion_contentHash_idx_905433f5\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"ScholarshipVersion_contentHash_idx_905433f5\"",
+        "sql": "CREATE INDEX \"ScholarshipVersion_contentHash_idx_905433f5\" ON \"public\".\"ScholarshipVersion\" (\"contentHash\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"ScholarshipVersion_contentHash_idx_905433f5\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"ScholarshipVersion_contentHash_idx_905433f5\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.ScholarshipVersion.ScholarshipVersion_crawlRunId_idx_89f782b2",
+    "label": "Create index \"ScholarshipVersion_crawlRunId_idx_89f782b2\" on \"ScholarshipVersion\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "ScholarshipVersion_crawlRunId_idx_89f782b2",
+        "table": "ScholarshipVersion"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"ScholarshipVersion_crawlRunId_idx_89f782b2\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"ScholarshipVersion_crawlRunId_idx_89f782b2\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"ScholarshipVersion_crawlRunId_idx_89f782b2\"",
+        "sql": "CREATE INDEX \"ScholarshipVersion_crawlRunId_idx_89f782b2\" ON \"public\".\"ScholarshipVersion\" (\"crawlRunId\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"ScholarshipVersion_crawlRunId_idx_89f782b2\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"ScholarshipVersion_crawlRunId_idx_89f782b2\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.ScholarshipVersion.ScholarshipVersion_scholarshipId_idx_faec57f5",
+    "label": "Create index \"ScholarshipVersion_scholarshipId_idx_faec57f5\" on \"ScholarshipVersion\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "ScholarshipVersion_scholarshipId_idx_faec57f5",
+        "table": "ScholarshipVersion"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"ScholarshipVersion_scholarshipId_idx_faec57f5\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"ScholarshipVersion_scholarshipId_idx_faec57f5\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"ScholarshipVersion_scholarshipId_idx_faec57f5\"",
+        "sql": "CREATE INDEX \"ScholarshipVersion_scholarshipId_idx_faec57f5\" ON \"public\".\"ScholarshipVersion\" (\"scholarshipId\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"ScholarshipVersion_scholarshipId_idx_faec57f5\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"ScholarshipVersion_scholarshipId_idx_faec57f5\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.Source.Source_active_idx_8af4daed",
+    "label": "Create index \"Source_active_idx_8af4daed\" on \"Source\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "Source_active_idx_8af4daed",
+        "table": "Source"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"Source_active_idx_8af4daed\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"Source_active_idx_8af4daed\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"Source_active_idx_8af4daed\"",
+        "sql": "CREATE INDEX \"Source_active_idx_8af4daed\" ON \"public\".\"Source\" (\"active\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"Source_active_idx_8af4daed\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"Source_active_idx_8af4daed\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.Source.Source_isOfficial_idx_92ccde4a",
+    "label": "Create index \"Source_isOfficial_idx_92ccde4a\" on \"Source\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "Source_isOfficial_idx_92ccde4a",
+        "table": "Source"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"Source_isOfficial_idx_92ccde4a\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"Source_isOfficial_idx_92ccde4a\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"Source_isOfficial_idx_92ccde4a\"",
+        "sql": "CREATE INDEX \"Source_isOfficial_idx_92ccde4a\" ON \"public\".\"Source\" (\"isOfficial\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"Source_isOfficial_idx_92ccde4a\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"Source_isOfficial_idx_92ccde4a\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.Source.Source_sourceType_idx_d8b2a801",
+    "label": "Create index \"Source_sourceType_idx_d8b2a801\" on \"Source\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "Source_sourceType_idx_d8b2a801",
+        "table": "Source"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"Source_sourceType_idx_d8b2a801\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"Source_sourceType_idx_d8b2a801\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"Source_sourceType_idx_d8b2a801\"",
+        "sql": "CREATE INDEX \"Source_sourceType_idx_d8b2a801\" ON \"public\".\"Source\" (\"sourceType\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"Source_sourceType_idx_d8b2a801\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"Source_sourceType_idx_d8b2a801\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.ChangeEvent.ChangeEvent_scholarshipId_fkey",
+    "label": "Add foreign key \"ChangeEvent_scholarshipId_fkey\" on \"ChangeEvent\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "ChangeEvent_scholarshipId_fkey",
+        "table": "ChangeEvent"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"ChangeEvent_scholarshipId_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "ChangeEvent_scholarshipId_fkey",
+          "public",
+          "\"public\".\"ChangeEvent\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"ChangeEvent_scholarshipId_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"ChangeEvent\"\nADD CONSTRAINT \"ChangeEvent_scholarshipId_fkey\"\nFOREIGN KEY (\"scholarshipId\")\nREFERENCES \"public\".\"Scholarship\" (\"id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"ChangeEvent_scholarshipId_fkey\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "ChangeEvent_scholarshipId_fkey",
+          "public",
+          "\"public\".\"ChangeEvent\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.ChangeEvent.ChangeEvent_crawlRunId_fkey",
+    "label": "Add foreign key \"ChangeEvent_crawlRunId_fkey\" on \"ChangeEvent\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "ChangeEvent_crawlRunId_fkey",
+        "table": "ChangeEvent"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"ChangeEvent_crawlRunId_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "ChangeEvent_crawlRunId_fkey",
+          "public",
+          "\"public\".\"ChangeEvent\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"ChangeEvent_crawlRunId_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"ChangeEvent\"\nADD CONSTRAINT \"ChangeEvent_crawlRunId_fkey\"\nFOREIGN KEY (\"crawlRunId\")\nREFERENCES \"public\".\"CrawlRun\" (\"id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"ChangeEvent_crawlRunId_fkey\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "ChangeEvent_crawlRunId_fkey",
+          "public",
+          "\"public\".\"ChangeEvent\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.DiscoveredUrl.DiscoveredUrl_sourceId_fkey",
+    "label": "Add foreign key \"DiscoveredUrl_sourceId_fkey\" on \"DiscoveredUrl\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "DiscoveredUrl_sourceId_fkey",
+        "table": "DiscoveredUrl"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"DiscoveredUrl_sourceId_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "DiscoveredUrl_sourceId_fkey",
+          "public",
+          "\"public\".\"DiscoveredUrl\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"DiscoveredUrl_sourceId_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"DiscoveredUrl\"\nADD CONSTRAINT \"DiscoveredUrl_sourceId_fkey\"\nFOREIGN KEY (\"sourceId\")\nREFERENCES \"public\".\"Source\" (\"id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"DiscoveredUrl_sourceId_fkey\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "DiscoveredUrl_sourceId_fkey",
+          "public",
+          "\"public\".\"DiscoveredUrl\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.Evidence.Evidence_scholarshipId_fkey",
+    "label": "Add foreign key \"Evidence_scholarshipId_fkey\" on \"Evidence\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "Evidence_scholarshipId_fkey",
+        "table": "Evidence"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"Evidence_scholarshipId_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "Evidence_scholarshipId_fkey",
+          "public",
+          "\"public\".\"Evidence\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"Evidence_scholarshipId_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"Evidence\"\nADD CONSTRAINT \"Evidence_scholarshipId_fkey\"\nFOREIGN KEY (\"scholarshipId\")\nREFERENCES \"public\".\"Scholarship\" (\"id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"Evidence_scholarshipId_fkey\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "Evidence_scholarshipId_fkey",
+          "public",
+          "\"public\".\"Evidence\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.Evidence.Evidence_sourceId_fkey",
+    "label": "Add foreign key \"Evidence_sourceId_fkey\" on \"Evidence\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "Evidence_sourceId_fkey",
+        "table": "Evidence"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"Evidence_sourceId_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "Evidence_sourceId_fkey",
+          "public",
+          "\"public\".\"Evidence\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"Evidence_sourceId_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"Evidence\"\nADD CONSTRAINT \"Evidence_sourceId_fkey\"\nFOREIGN KEY (\"sourceId\")\nREFERENCES \"public\".\"Source\" (\"id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"Evidence_sourceId_fkey\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "Evidence_sourceId_fkey",
+          "public",
+          "\"public\".\"Evidence\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.Evidence.Evidence_crawlRunId_fkey",
+    "label": "Add foreign key \"Evidence_crawlRunId_fkey\" on \"Evidence\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "Evidence_crawlRunId_fkey",
+        "table": "Evidence"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"Evidence_crawlRunId_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "Evidence_crawlRunId_fkey",
+          "public",
+          "\"public\".\"Evidence\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"Evidence_crawlRunId_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"Evidence\"\nADD CONSTRAINT \"Evidence_crawlRunId_fkey\"\nFOREIGN KEY (\"crawlRunId\")\nREFERENCES \"public\".\"CrawlRun\" (\"id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"Evidence_crawlRunId_fkey\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "Evidence_crawlRunId_fkey",
+          "public",
+          "\"public\".\"Evidence\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.Scholarship.Scholarship_sourceId_fkey",
+    "label": "Add foreign key \"Scholarship_sourceId_fkey\" on \"Scholarship\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "Scholarship_sourceId_fkey",
+        "table": "Scholarship"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"Scholarship_sourceId_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "Scholarship_sourceId_fkey",
+          "public",
+          "\"public\".\"Scholarship\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"Scholarship_sourceId_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"Scholarship\"\nADD CONSTRAINT \"Scholarship_sourceId_fkey\"\nFOREIGN KEY (\"sourceId\")\nREFERENCES \"public\".\"Source\" (\"id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"Scholarship_sourceId_fkey\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "Scholarship_sourceId_fkey",
+          "public",
+          "\"public\".\"Scholarship\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.ScholarshipVersion.ScholarshipVersion_scholarshipId_fkey",
+    "label": "Add foreign key \"ScholarshipVersion_scholarshipId_fkey\" on \"ScholarshipVersion\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "ScholarshipVersion_scholarshipId_fkey",
+        "table": "ScholarshipVersion"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"ScholarshipVersion_scholarshipId_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "ScholarshipVersion_scholarshipId_fkey",
+          "public",
+          "\"public\".\"ScholarshipVersion\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"ScholarshipVersion_scholarshipId_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"ScholarshipVersion\"\nADD CONSTRAINT \"ScholarshipVersion_scholarshipId_fkey\"\nFOREIGN KEY (\"scholarshipId\")\nREFERENCES \"public\".\"Scholarship\" (\"id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"ScholarshipVersion_scholarshipId_fkey\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "ScholarshipVersion_scholarshipId_fkey",
+          "public",
+          "\"public\".\"ScholarshipVersion\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.ScholarshipVersion.ScholarshipVersion_crawlRunId_fkey",
+    "label": "Add foreign key \"ScholarshipVersion_crawlRunId_fkey\" on \"ScholarshipVersion\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "ScholarshipVersion_crawlRunId_fkey",
+        "table": "ScholarshipVersion"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"ScholarshipVersion_crawlRunId_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "ScholarshipVersion_crawlRunId_fkey",
+          "public",
+          "\"public\".\"ScholarshipVersion\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"ScholarshipVersion_crawlRunId_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"ScholarshipVersion\"\nADD CONSTRAINT \"ScholarshipVersion_crawlRunId_fkey\"\nFOREIGN KEY (\"crawlRunId\")\nREFERENCES \"public\".\"CrawlRun\" (\"id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"ScholarshipVersion_crawlRunId_fkey\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "ScholarshipVersion_crawlRunId_fkey",
+          "public",
+          "\"public\".\"ScholarshipVersion\""
+        ]
+      }
+    ]
+  }
+]
