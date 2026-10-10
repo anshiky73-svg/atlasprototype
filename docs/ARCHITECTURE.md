@@ -1,40 +1,94 @@
-# Architecture
+# Short technical note
 
-The application is evidence-first: model responses are candidates, while source policy, validation, evidence support, confidence, and persistence are controlled by application code.
+## Architecture
+
+The system is organized as an evidence-first scholarship intelligence pipeline. Discovery, crawling, classification, extraction, verification, persistence, and dashboard access are separated into feature and library boundaries under `src/lib` and `src/features/scholarship-intelligence`.
 
 ```text
 Official seed sources
-  -> discovery (links and sitemaps)
-  -> normalized, prioritized URL queue
-  -> bounded crawler (HTTP/Cheerio, Playwright fallback)
-  -> content snapshots
-  -> page rules and Gemini extraction
-  -> Zod validation and evidence support checks
-  -> official-source and conflict checks
-  -> deterministic confidence/status
-  -> repository services and Prisma 8/PostgreSQL
-  -> dashboard, versions, changes, and re-verification
+  -> discovery and domain filtering
+  -> normalized URL queue
+  -> bounded crawl + snapshot persistence
+  -> page classification
+  -> structured extraction (Gemini JSON schema)
+  -> evidence validation and source checks
+  -> deterministic confidence and status
+  -> Prisma/PostgreSQL persistence
+  -> dashboard, change logs, and source views
 ```
 
-## Trust boundaries
+The app keeps trust decisions in application code rather than in model output. The system does not mark a scholarship as verified just because the model returned a value; the value must be supported by quoted source text and pass deterministic checks.
 
-- The registry in `src/lib/discovery/config/seed-sources.ts` defines eligible official domains and their source types.
-- URL normalization and discovery filters reject unsupported protocols and obvious non-content/account routes.
-- The crawler checks robots policy, constrains response size/time, validates redirects, and uses an explicit domain allowlist.
-- Gemini sees bounded page content. Its output must satisfy the Zod schema and is not trusted as evidence unless the quoted text occurs in the retrieved page and supports the field value.
-- The deterministic confidence engine and verification threshold make the final trust decision.
-- A failed crawl is isolated from previously persisted scholarship records.
+## Technology choices
 
-## Runtime layers
+- Next.js 16 (App Router) for the web app and server routes.
+- TypeScript for typed contracts and configuration.
+- Prisma 8 with PostgreSQL for persistence, versioning, source metadata, and crawl records.
+- Cheerio for HTML parsing and lightweight extraction support, with Playwright available as a fallback for problematic pages.
+- Gemini API for structured extraction, constrained by a strict JSON schema and bounded text input.
+- Zod for schema validation and fail-closed parsing.
+- Deterministic scoring in application code, not LLM-based judgment.
 
-Crawler and discovery code call service/repository functions rather than embedding Prisma calls for URL/source/snapshot persistence. Scholarship updates, versions, evidence, and field changes are committed in a Prisma transaction. The app runtime prefers `DATABASE_URL_POOLED`; Prisma CLI uses the direct `DATABASE_URL`.
+## Discovery methodology
 
-## Status lifecycle
+Discovery starts from a curated registry of official seed sources (`src/lib/discovery/config/seed-sources.ts`) and validates domains against an allowlist before crawling.
 
-- `ACTIVE`: verified information without an approaching or passed deadline.
-- `EXPIRING_SOON`: verified deadline within the configured threshold.
-- `EXPIRED`: deadline has passed.
-- `REVIEW_REQUIRED`: evidence is incomplete, conflicting, or below the verification threshold.
-- `NO_LONGER_VERIFIABLE`: reserved for a future evidence-backed disappearance workflow; a network failure alone must never set this status.
+The flow includes:
+- canonical URL normalization and duplicate suppression;
+- source-aware discovery from sitemaps and internal links;
+- filtering for supportable protocols, HTML pages, and official domains;
+- `DiscoveredUrl` persistence with a crawl-run record so discovery results are auditable.
 
-Deadline thresholds are centralized in `src/lib/status/status-engine.ts`.
+The system deliberately avoids open-web crawling beyond the approved official-source network and rejects redirect-heavy or unsupported destinations.
+
+## Extraction methodology
+
+A candidate page is classified as a scholarship page before extraction. The crawl pipeline stores a content snapshot and then sends only bounded page text to Gemini with a strict extraction schema for fields such as name, provider, amount, eligibility, dates, documents, selection process, and application URL.
+
+The extraction contract enforces:
+- all values are returned as strings;
+- unspecified values are mapped to `Not specified`;
+- evidence items require a field and verbatim supporting quote.
+
+The app does not rely on free-form model reasoning for the final fact set. It requires the raw page text to support the extracted value.
+
+## Verification methodology
+
+Verification is explicit and deterministic. After extraction, the system validates that:
+- the scholarship appears on an official registered source;
+- the application URL is official or policy-compliant;
+- no conflicting field values exist across records or within the same page;
+- core evidence exists for eligibility, deadline, or amount;
+- current information is still within the configured freshness window.
+
+Records that fail these checks are kept as `REVIEW_REQUIRED` instead of being promoted to verified status.
+
+## Confidence-score methodology
+
+The confidence score is computed in `src/lib/verification/confidence.ts` from weighted checks:
+
+- official source: 25
+- exists on official source: 20
+- official application URL: 10
+- eligibility evidence: 15
+- deadline evidence: 10
+- amount evidence: 5
+- current information: 10
+- no conflicts: 5
+
+The total score uses `VERIFIED_THRESHOLD = 80`, but a record must also pass mandatory checks for source trust, evidence presence, and conflict-free data before it can become `VERIFIED`.
+
+## Anti-hallucination approach
+
+The project uses a fail-closed design:
+- model output is treated as untrusted candidate text;
+- evidence quotes must appear verbatim in the source page;
+- field values that do not match the evidence quote are converted to `Not specified`;
+- unsupported or mismatched facts are rejected before persistence;
+- the application never infers missing facts from outside knowledge.
+
+This is enforced by `buildSupportedExtraction()` in `src/lib/extraction/evidence.ts` and by deterministic verification logic.
+
+## Change detection
+
+The system detects changes using content hashes, previous crawl state, and persisted scholarship metadata. When a discovered URL is re-crawled, the current content hash is compared to the previous hash, and only changed records are reprocessed. Scholarship updates are recorded in a transactional path with source metadata, evidence, and field-level change tracking so the dashboard can display revisions without overwriting the evidence trail.
