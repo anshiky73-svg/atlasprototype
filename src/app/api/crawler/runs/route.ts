@@ -1,5 +1,5 @@
 import { hasDatabaseConfig } from "@/lib/config/env";
-import { getCrawlRuns } from "@/lib/data/scholarships";
+import { getCrawlRuns } from "@/features/scholarship-intelligence";
 
 export const dynamic = "force-dynamic";
 

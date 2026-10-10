@@ -2,6 +2,10 @@
 
 An evidence-first scholarship discovery and verification dashboard. The crawler retrieves pages from configured official sources, records content snapshots, classifies pages, extracts candidate fields with Gemini, validates evidence, calculates a deterministic confidence score, and keeps version/change history in PostgreSQL.
 
+## Feature architecture
+
+The application is organized around the scholarship-intelligence product domain rather than a single flat collection of utilities. Core data access for the dashboard and crawler lifecycle lives under `src/features/scholarship-intelligence`, while infrastructure concerns such as network fetches, discovery rules, verification logic, and Prisma access remain in the supporting `src/lib` layer.
+
 The application does not treat model output as trusted by itself. Only configured official-source domains are crawlable, unsupported claims are stored as “Not specified,” and a scholarship is marked `VERIFIED` only when its evidence-backed score reaches 95/100.
 
 ## Requirements

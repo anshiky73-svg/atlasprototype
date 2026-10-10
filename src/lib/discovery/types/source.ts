@@ -13,6 +13,7 @@ export interface SeedSource {
   name: string;
   url: string;
   domain: string;
+  aliases?: string[];
   sourceType: SourceType;
   isOfficial: boolean;
   isPrimarySource: boolean;

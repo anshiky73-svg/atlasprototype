@@ -1,5 +1,5 @@
 import { hasDatabaseConfig } from "@/lib/config/env";
-import { getScholarshipDetail } from "@/lib/data/scholarships";
+import { getScholarshipDetail } from "@/features/scholarship-intelligence";
 
 export const dynamic = "force-dynamic";
 

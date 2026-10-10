@@ -36,10 +36,21 @@ function comparable(value: unknown): string {
   return String(value ?? "").trim().toLocaleLowerCase("en-IN").replace(/\s+/g, " ");
 }
 
+function normalizeDomain(value: string): string {
+  return value.trim().toLowerCase().replace(/^www\./, "").replace(/\.$/, "");
+}
+
+function isSameOrSubdomain(hostname: string, domain: string): boolean {
+  const host = normalizeDomain(hostname);
+  const expected = normalizeDomain(domain);
+  return Boolean(expected) && (host === expected || host.endsWith(`.${expected}`));
+}
+
 async function persistScholarship(
   input: {
     sourceId: number;
     sourceType: SeedSource["sourceType"];
+    isOfficialSource: boolean;
     runId: number;
     page: CrawlResult;
     values: Omit<import("@/lib/extraction/schema").ExtractedScholarship, "evidence">;
@@ -204,7 +215,7 @@ async function persistScholarship(
         contentHash: input.page.contentHash,
         retrievedAt: input.page.retrievedAt,
         supportsClaim: item.supportsClaim,
-        isOfficialSource: true,
+        isOfficialSource: input.isOfficialSource,
       });
     }
   });
@@ -219,11 +230,15 @@ async function persistScholarship(
 async function processPage(
   page: CrawlResult,
   sourceId: number,
-  sourceType: SeedSource["sourceType"],
+  source: SeedSource,
   runId: number,
 ) {
+  const sourceType = source.sourceType;
+  const isOfficialSource = Boolean(source.isOfficial && source.isPrimarySource);
   const classification = classifyPage(page.title, page.finalUrl, page.text);
-  if (classification !== "SCHOLARSHIP") return { extracted: false, verified: false, isNew: false, status: null };
+  if (classification !== "SCHOLARSHIP") {
+    return { extracted: false, persisted: false, verified: false, isNew: false, status: null };
+  }
 
   const extraction = await extractScholarship(page.title, page.text);
   const supported = buildSupportedExtraction(extraction, page.text);
@@ -277,9 +292,15 @@ async function processPage(
     try {
       const candidate = new URL(appUrl);
       const registeredSource = findSeedSourceByDomain(candidate.hostname);
+      const belongsToCurrentPrimarySource =
+        isOfficialSource && isSameOrSubdomain(candidate.hostname, source.domain);
+      const belongsToRegisteredPrimarySource = Boolean(
+        registeredSource?.isOfficial && registeredSource.isPrimarySource,
+      );
+
       officialApplicationUrl =
         candidate.protocol === "https:" &&
-        Boolean(registeredSource?.isOfficial && registeredSource.isPrimarySource) &&
+        (belongsToCurrentPrimarySource || belongsToRegisteredPrimarySource) &&
         !fieldConflicts.has("APPLICATION_URL");
     } catch {
       values.applicationUrl = notSpecified;
@@ -293,7 +314,7 @@ async function processPage(
   }
 
   const confidence = calculateConfidence({
-    officialSource: true,
+    officialSource: isOfficialSource,
     existsOnOfficialSource: evidenceFor("NAME"),
     officialApplicationUrl,
     eligibilityEvidence: evidenceFor("ELIGIBILITY") && !fieldConflicts.has("ELIGIBILITY"),
@@ -306,12 +327,13 @@ async function processPage(
   });
 
   if (!meaningful(values.name)) {
-    return { extracted: true, verified: false, isNew: false, status: "REVIEW_REQUIRED" };
+    return { extracted: true, persisted: false, verified: false, isNew: false, status: null };
   }
 
   const result = await persistScholarship({
     sourceId,
     sourceType,
+    isOfficialSource,
     runId,
     page,
     values,
@@ -320,6 +342,7 @@ async function processPage(
   });
   return {
     extracted: true,
+    persisted: true,
     verified: result.verificationStatus === "VERIFIED",
     isNew: result.isNew,
     status: result.status,
@@ -482,14 +505,16 @@ export async function runCrawl() {
             const result = await processPage(
               page,
               candidate.sourceId,
-              candidate.source.sourceType,
+              candidate.source,
               crawlRun.id,
             );
             if (result.extracted) extractedCount += 1;
-            if (result.verified) verifiedCount += 1;
-            else if (result.extracted) reviewRequiredCount += 1;
-            if (result.isNew) newScholarshipCount += 1;
-            else if (result.extracted) updatedScholarshipCount += 1;
+            if (result.persisted) {
+              if (result.verified) verifiedCount += 1;
+              else reviewRequiredCount += 1;
+              if (result.isNew) newScholarshipCount += 1;
+              else updatedScholarshipCount += 1;
+            }
             if (result.status === "EXPIRED") expiredCount += 1;
             await db.orm.public.DiscoveredUrl.where({ id: row.id }).update({
               status: "PROCESSED",
@@ -531,7 +556,7 @@ export async function runCrawl() {
     }
 
     await db.orm.public.CrawlRun.where({ id: crawlRun.id }).update({
-      status: failures.length > 0 && crawledCount === 0 ? "FAILED" : "COMPLETED",
+      status: failures.length > 0 ? "FAILED" : "COMPLETED",
       completedAt: new Date().toISOString(),
       discoveredCount,
       crawledCount,
@@ -548,7 +573,7 @@ export async function runCrawl() {
     });
     return {
       crawlRunId: crawlRun.id,
-      status: failures.length > 0 && crawledCount === 0 ? "FAILED" : "COMPLETED",
+      status: failures.length > 0 ? "FAILED" : "COMPLETED",
       discoveredCount,
       crawledCount,
       extractedCount,

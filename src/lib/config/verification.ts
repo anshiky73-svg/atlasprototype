@@ -9,5 +9,5 @@ export const CONFIDENCE_WEIGHTS = {
   noConflicts: 5,
 } as const;
 
-export const VERIFIED_THRESHOLD = 95;
+export const VERIFIED_THRESHOLD = 80;
 export const CURRENT_INFORMATION_MAX_AGE_DAYS = 30;

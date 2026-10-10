@@ -1,4 +1,4 @@
-import { getScholarships } from "@/lib/data/scholarships";
+import { getScholarships } from "@/features/scholarship-intelligence";
 import { hasDatabaseConfig } from "@/lib/config/env";
 
 export const dynamic = "force-dynamic";

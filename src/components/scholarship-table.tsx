@@ -1,5 +1,5 @@
 import Link from "next/link";
-import type { getScholarships } from "@/lib/data/scholarships";
+import type { getScholarships } from "@/features/scholarship-intelligence";
 import { StatusBadge } from "./status-badge";
 
 type Scholarship = Awaited<ReturnType<typeof getScholarships>>[number];
@@ -18,7 +18,8 @@ export function ScholarshipTable({ scholarships }: { scholarships: Scholarship[]
       <div className="empty-state">
         <span className="empty-icon">S</span>
         <h3>No scholarships found</h3>
-        <p>Try another search, or run the crawler to discover official opportunities.</p>
+        <p>No persisted scholarships match this view. Clear the search or filters, or check crawler activity for extraction and failure counts.</p>
+        <Link className="text-link" href="/crawler">Review crawler activity <span>→</span></Link>
       </div>
     );
   }

@@ -24,6 +24,17 @@ function redactSecrets(message: string): string {
     .reduce((safe, secret) => safe.replaceAll(secret, "[redacted]"), message);
 }
 
+function isStaleCrawlRun(run: { startedAt: string; updatedAt?: string | null; completedAt?: string | null }) {
+  const lastActivityAt = run.updatedAt ?? run.startedAt;
+  const lastActivity = new Date(lastActivityAt);
+  if (!Number.isFinite(lastActivity.getTime())) {
+    return false;
+  }
+
+  const staleWindowMs = 10 * 60 * 1_000;
+  return Date.now() - lastActivity.getTime() > staleWindowMs;
+}
+
 export async function POST(request: Request) {
   let secret: string;
   try {
@@ -43,12 +54,21 @@ export async function POST(request: Request) {
 
   const activeRun = await db.orm.public.CrawlRun
     .where({ status: "RUNNING" })
+    .orderBy((run) => run.startedAt.desc())
     .first();
   if (activeRun) {
-    return Response.json(
-      { error: "A crawl run is already in progress.", crawlRunId: activeRun.id },
-      { status: 409 },
-    );
+    if (isStaleCrawlRun(activeRun)) {
+      await db.orm.public.CrawlRun.where({ id: activeRun.id }).update({
+        status: "FAILED",
+        completedAt: new Date().toISOString(),
+        errorMessage: "Previous crawl exceeded the timeout window and was marked failed.",
+      });
+    } else {
+      return Response.json(
+        { error: "A crawl run is already in progress.", crawlRunId: activeRun.id },
+        { status: 409 },
+      );
+    }
   }
 
   try {

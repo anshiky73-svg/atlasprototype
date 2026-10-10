@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { StatusBadge } from "@/components/status-badge";
+import { getScholarshipDetail } from "@/features/scholarship-intelligence";
 import { hasDatabaseConfig } from "@/lib/config/env";
-import { getScholarshipDetail } from "@/lib/data/scholarships";
 
 export const dynamic = "force-dynamic";
 

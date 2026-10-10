@@ -4,8 +4,8 @@ const crawlerConfigSchema = z.object({
   CRAWLER_USER_AGENT: z.string().min(1).default("ScholarshipIntelligenceCrawler/1.0"),
   CRAWLER_TIMEOUT_MS: z.coerce.number().int().min(1_000).max(60_000).default(20_000),
   CRAWLER_MAX_DEPTH: z.coerce.number().int().min(0).max(5).default(2),
-  CRAWLER_MAX_PAGES_PER_RUN: z.coerce.number().int().min(1).max(100).default(30),
-  CRAWLER_CONCURRENCY_PER_DOMAIN: z.coerce.number().int().min(1).max(5).default(2),
+  CRAWLER_MAX_PAGES_PER_RUN: z.coerce.number().int().min(1).max(200).default(35),
+  CRAWLER_CONCURRENCY_PER_DOMAIN: z.coerce.number().int().min(1).max(6).default(1),
   EXPIRING_SOON_DAYS: z.coerce.number().int().min(1).max(180).default(30),
 });
 
